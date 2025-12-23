@@ -1,11 +1,13 @@
 import { useState } from 'react';
-import { submitContact } from '../utils/api';
 
-const Contact = () => {
+const WholesaleOrders = () => {
   const [formData, setFormData] = useState({
-    name: '',
+    businessName: '',
+    contactPerson: '',
     email: '',
     phone: '',
+    products: '',
+    quantity: '',
     message: '',
   });
   const [status, setStatus] = useState({ type: '', message: '' });
@@ -23,21 +25,23 @@ const Contact = () => {
     setLoading(true);
     setStatus({ type: '', message: '' });
 
-    try {
-      await submitContact(formData);
+    // In a real app, this would send to backend
+    setTimeout(() => {
       setStatus({
         type: 'success',
-        message: 'Thank you for contacting us! We will get back to you soon.',
+        message: 'Thank you for your wholesale inquiry! We will contact you within 24 hours to discuss your order.',
       });
-      setFormData({ name: '', email: '', phone: '', message: '' });
-    } catch (error) {
-      setStatus({
-        type: 'error',
-        message: 'Failed to send message. Please try again later.',
+      setFormData({
+        businessName: '',
+        contactPerson: '',
+        email: '',
+        phone: '',
+        products: '',
+        quantity: '',
+        message: '',
       });
-    } finally {
       setLoading(false);
-    }
+    }, 1000);
   };
 
   const whatsappNumbers = [
@@ -47,46 +51,37 @@ const Contact = () => {
 
   return (
     <div className="py-12 bg-gray-50 min-h-screen">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">Contact Us</h1>
-          <p className="text-gray-600">Get in touch with us for any inquiries or support</p>
+          <h1 className="text-4xl font-bold text-gray-900 mb-4">Wholesale Orders</h1>
+          <p className="text-gray-600">Get competitive pricing for bulk orders</p>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 mb-8">
+          <h2 className="text-xl font-semibold text-gray-900 mb-3">Wholesale Benefits</h2>
+          <ul className="list-disc list-inside text-gray-700 space-y-2">
+            <li>Competitive bulk pricing</li>
+            <li>Priority order processing</li>
+            <li>Dedicated account management</li>
+            <li>Flexible payment terms (for approved accounts)</li>
+            <li>Regular stock updates</li>
+            <li>Special promotions and discounts</li>
+          </ul>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Contact Information */}
           <div className="bg-white rounded-lg shadow-md p-8">
             <h2 className="text-2xl font-semibold text-gray-900 mb-6">Get in Touch</h2>
             
             <div className="space-y-6">
               <div>
-                <h3 className="font-semibold text-gray-900 mb-2 flex items-center">
-                  <svg className="w-5 h-5 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                  </svg>
-                  Location
-                </h3>
-                <p className="text-gray-700">
-                  Mariech Autospare<br />
-                  Nairobi, MSP Plaza<br />
-                  1st Floor, Room No. 14<br />
-                  Nairobi, Kenya
-                </p>
-              </div>
-
-              <div>
-                <h3 className="font-semibold text-gray-900 mb-3 flex items-center">
-                  <svg className="w-5 h-5 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
-                  </svg>
-                  Phone Numbers
-                </h3>
+                <h3 className="font-semibold text-gray-900 mb-2">Phone Numbers</h3>
                 <div className="space-y-2">
                   {whatsappNumbers.map((item, idx) => (
                     <a
                       key={idx}
-                      href={`https://wa.me/${item.number}`}
+                      href={`https://wa.me/${item.number}?text=Hello, I'm interested in wholesale orders.`}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="flex items-center text-blue-600 hover:text-blue-700 font-semibold"
@@ -101,32 +96,29 @@ const Contact = () => {
               </div>
 
               <div>
-                <h3 className="font-semibold text-gray-900 mb-2 flex items-center">
-                  <svg className="w-5 h-5 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                  Business Hours
-                </h3>
+                <h3 className="font-semibold text-gray-900 mb-2">Location</h3>
+                <p className="text-gray-700">
+                  Mariech Autospare<br />
+                  Nairobi, MSP Plaza<br />
+                  1st Floor, Room No. 14<br />
+                  Nairobi, Kenya
+                </p>
+              </div>
+
+              <div>
+                <h3 className="font-semibold text-gray-900 mb-2">Business Hours</h3>
                 <p className="text-gray-700">
                   Monday - Friday: 8:00 AM - 6:00 PM<br />
                   Saturday: 9:00 AM - 4:00 PM<br />
                   Sunday: Closed
                 </p>
               </div>
-
-              <div>
-                <h3 className="font-semibold text-gray-900 mb-2">Visit Us</h3>
-                <p className="text-gray-700">
-                  We welcome walk-in customers. Feel free to visit our store during business hours 
-                  to browse our products and speak with our team.
-                </p>
-              </div>
             </div>
           </div>
 
-          {/* Contact Form */}
+          {/* Wholesale Inquiry Form */}
           <div className="bg-white rounded-lg shadow-md p-8">
-            <h2 className="text-2xl font-semibold text-gray-900 mb-6">Send us a Message</h2>
+            <h2 className="text-2xl font-semibold text-gray-900 mb-6">Wholesale Inquiry</h2>
             
             {status.message && (
               <div
@@ -142,15 +134,31 @@ const Contact = () => {
 
             <form onSubmit={handleSubmit} className="space-y-6">
               <div>
-                <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
-                  Name *
+                <label htmlFor="businessName" className="block text-sm font-medium text-gray-700 mb-2">
+                  Business Name *
                 </label>
                 <input
                   type="text"
-                  id="name"
-                  name="name"
+                  id="businessName"
+                  name="businessName"
                   required
-                  value={formData.name}
+                  value={formData.businessName}
+                  onChange={handleChange}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  placeholder="Your business name"
+                />
+              </div>
+
+              <div>
+                <label htmlFor="contactPerson" className="block text-sm font-medium text-gray-700 mb-2">
+                  Contact Person *
+                </label>
+                <input
+                  type="text"
+                  id="contactPerson"
+                  name="contactPerson"
+                  required
+                  value={formData.contactPerson}
                   onChange={handleChange}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   placeholder="Your name"
@@ -175,12 +183,13 @@ const Contact = () => {
 
               <div>
                 <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-2">
-                  Phone (Optional)
+                  Phone Number *
                 </label>
                 <input
                   type="tel"
                   id="phone"
                   name="phone"
+                  required
                   value={formData.phone}
                   onChange={handleChange}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
@@ -189,18 +198,48 @@ const Contact = () => {
               </div>
 
               <div>
+                <label htmlFor="products" className="block text-sm font-medium text-gray-700 mb-2">
+                  Products of Interest *
+                </label>
+                <textarea
+                  id="products"
+                  name="products"
+                  required
+                  rows={3}
+                  value={formData.products}
+                  onChange={handleChange}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  placeholder="List the products you're interested in..."
+                />
+              </div>
+
+              <div>
+                <label htmlFor="quantity" className="block text-sm font-medium text-gray-700 mb-2">
+                  Estimated Quantity
+                </label>
+                <input
+                  type="text"
+                  id="quantity"
+                  name="quantity"
+                  value={formData.quantity}
+                  onChange={handleChange}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  placeholder="e.g., 50 units per month"
+                />
+              </div>
+
+              <div>
                 <label htmlFor="message" className="block text-sm font-medium text-gray-700 mb-2">
-                  Message *
+                  Additional Information
                 </label>
                 <textarea
                   id="message"
                   name="message"
-                  required
-                  rows={5}
+                  rows={4}
                   value={formData.message}
                   onChange={handleChange}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                  placeholder="Your message..."
+                  placeholder="Any additional information about your wholesale needs..."
                 />
               </div>
 
@@ -209,34 +248,15 @@ const Contact = () => {
                 disabled={loading}
                 className="w-full bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
               >
-                {loading ? 'Sending...' : 'Send Message'}
+                {loading ? 'Submitting...' : 'Submit Wholesale Inquiry'}
               </button>
             </form>
           </div>
-        </div>
-
-        {/* Map Section */}
-        <div className="bg-white rounded-lg shadow-md p-8 mt-8">
-          <h2 className="text-2xl font-semibold text-gray-900 mb-6">Find Us</h2>
-          <div className="w-full h-96 rounded-lg overflow-hidden">
-            <iframe
-              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3988.8089!2d36.8214!3d-1.2921!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMcKwMTcnMzEuNiJTIDM2wrA0OScxNy4wIkU!5e0!3m2!1sen!2ske!4v1234567890"
-              width="100%"
-              height="100%"
-              style={{ border: 0 }}
-              allowFullScreen=""
-              loading="lazy"
-              referrerPolicy="no-referrer-when-downgrade"
-              title="Mariech Autospare Location"
-            ></iframe>
-          </div>
-          <p className="mt-4 text-gray-600 text-sm">
-            <strong>Address:</strong> Nairobi, MSP Plaza, 1st Floor, Room No. 14
-          </p>
         </div>
       </div>
     </div>
   );
 };
 
-export default Contact;
+export default WholesaleOrders;
+
