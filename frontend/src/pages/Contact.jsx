@@ -1,5 +1,7 @@
 import { useState } from 'react';
 import { submitContact } from '../utils/api';
+import Header from '../components/Header';
+import Footer from '../components/Footer';
 
 const Contact = () => {
   const [formData, setFormData] = useState({
@@ -46,7 +48,9 @@ const Contact = () => {
   ];
 
   return (
-    <div className="py-12 bg-gray-50 min-h-screen">
+    <div className="min-h-screen flex flex-col">
+      <Header />
+      <main className="flex-1 py-12 bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-8">
           <h1 className="text-4xl font-bold text-gray-900 mb-4">Contact Us</h1>
@@ -235,6 +239,8 @@ const Contact = () => {
           </p>
         </div>
       </div>
+      </main>
+      <Footer />
     </div>
   );
 };

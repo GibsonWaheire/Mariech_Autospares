@@ -146,12 +146,33 @@ def initialize_products():
     for headlight in led_headlights:
         for size in headlight["sizes"]:
             for model in headlight["car_models"]:
+                # Calculate discount for some products (15-20% for popular items)
+                base_price = headlight["base_price"]
+                discount_percent = 0
+                original_price = None
+                is_bestseller = "Toby" in headlight['name'] and size in ["H4", "H7", "H11"]
+                is_new = headlight['name'] == "B-LED Projector F-Series"
+                
+                # Add discounts to popular products
+                if base_price and not headlight.get("price_varies"):
+                    if "Toby" in headlight['name'] and size in ["H4", "H7"]:
+                        discount_percent = 15
+                        original_price = base_price / (1 - discount_percent / 100)
+                    elif headlight['name'] == "B-LED Projector F-Series":
+                        discount_percent = 17
+                        original_price = base_price / (1 - discount_percent / 100)
+                    elif product_id % 5 == 0:
+                        discount_percent = 20
+                        original_price = base_price / (1 - discount_percent / 100)
+                
                 products.append({
                     "id": product_id,
                     "name": f"{headlight['name']} - {size}",
                     "category": "Lighting & Electrical",
                     "subcategory": "LED Headlights",
-                    "price": headlight["base_price"],
+                    "price": base_price,
+                    "original_price": original_price,
+                    "discount_percent": discount_percent if discount_percent > 0 else None,
                     "price_varies": headlight.get("price_varies", False),
                     "description": f"{headlight['description']}. Size: {size}",
                     "stock": 15 if headlight.get("price_varies") else 25,
@@ -162,7 +183,9 @@ def initialize_products():
                     "car_make": "Universal" if model == "Universal" else model.split()[0],
                     "car_model": model if model != "Universal" else None,
                     "year_range": None,
-                    "variants": [size]
+                    "variants": [size],
+                    "is_bestseller": is_bestseller,
+                    "is_new": is_new
                 })
                 product_id += 1
     
@@ -175,23 +198,36 @@ def initialize_products():
     
     for proj in projector_headlights:
         for size in proj["sizes"]:
+            base_price = proj["base_price"]
+            discount_percent = 0
+            original_price = None
+            is_new = "Bi-LED" in proj['name']
+            
+            if "Bi-LED" in proj['name'] and size == "H1":
+                discount_percent = 17
+                original_price = base_price / (1 - discount_percent / 100)
+            
             products.append({
                 "id": product_id,
                 "name": f"{proj['name']} - {size}",
                 "category": "Lighting & Electrical",
                 "subcategory": "Projector Headlights",
-                "price": proj["base_price"],
+                "price": base_price,
+                "original_price": original_price,
+                "discount_percent": discount_percent if discount_percent > 0 else None,
                 "price_varies": False,
                 "description": f"Advanced projector headlight system with {size} bulb size",
                 "stock": 20,
-                    "images": get_product_images("Lighting & Electrical", "Projector Headlights"),
+                "images": get_product_images("Lighting & Electrical", "Projector Headlights"),
                 "sku": f"PROJ-{size}-{product_id:03d}",
                 "size": size,
                 "compatible_cars": ["All Models"],
                 "car_make": "Universal",
                 "car_model": None,
                 "year_range": None,
-                "variants": [size]
+                "variants": [size],
+                "is_bestseller": False,
+                "is_new": is_new
             })
             product_id += 1
     
@@ -221,7 +257,9 @@ def initialize_products():
                 "car_model": None,
                 "year_range": None,
                 "variants": [fog_type]
-            })
+            ,
+                    "is_bestseller": False,
+                    "is_new": False})
             product_id += 1
     
     # Headlight Lenses
@@ -243,7 +281,9 @@ def initialize_products():
             "car_model": car_model,
             "year_range": "2010-2024",
             "variants": []
-        })
+        ,
+                    "is_bestseller": False,
+                    "is_new": False})
         product_id += 1
     
     # DRLs (Daytime Running Lights)
@@ -266,7 +306,9 @@ def initialize_products():
             "car_model": None,
             "year_range": None,
             "variants": []
-        })
+        ,
+                    "is_bestseller": False,
+                    "is_new": False})
         product_id += 1
     
     # Horns
@@ -296,7 +338,9 @@ def initialize_products():
             "car_model": horn["car"] if horn["car"] != "Universal" else None,
             "year_range": None,
             "variants": []
-        })
+        ,
+                    "is_bestseller": False,
+                    "is_new": False})
         product_id += 1
     
     # Alarms
@@ -319,7 +363,9 @@ def initialize_products():
             "car_model": None,
             "year_range": None,
             "variants": []
-        })
+        ,
+                    "is_bestseller": False,
+                    "is_new": False})
         product_id += 1
     
     # Turbo Timers
@@ -329,12 +375,23 @@ def initialize_products():
     ]
     
     for timer in turbo_timers:
+        base_price = timer["price"]
+        discount_percent = 0
+        original_price = None
+        is_bestseller = "HKS" in timer['name']
+        
+        if "HKS" in timer['name']:
+            discount_percent = 20
+            original_price = base_price / (1 - discount_percent / 100)
+        
         products.append({
             "id": product_id,
             "name": timer["name"],
             "category": "Lighting & Electrical",
             "subcategory": "Turbo Timers",
-            "price": timer["price"],
+            "price": base_price,
+            "original_price": original_price,
+            "discount_percent": discount_percent if discount_percent > 0 else None,
             "price_varies": False,
             "description": timer["description"],
             "stock": 8,
@@ -345,7 +402,9 @@ def initialize_products():
             "car_make": "Universal",
             "car_model": None,
             "year_range": None,
-            "variants": []
+            "variants": [],
+            "is_bestseller": is_bestseller,
+            "is_new": False
         })
         product_id += 1
     
@@ -369,7 +428,9 @@ def initialize_products():
             "car_model": model,
             "year_range": "2010-2024",
             "variants": []
-        })
+        ,
+                    "is_bestseller": False,
+                    "is_new": False})
         product_id += 1
     
     # Bumpers
@@ -398,7 +459,9 @@ def initialize_products():
                 "car_model": model,
                 "year_range": "2010-2024",
                 "variants": []
-            })
+            ,
+                    "is_bestseller": False,
+                    "is_new": False})
             product_id += 1
     
     # Bumper Lips
@@ -420,7 +483,9 @@ def initialize_products():
             "car_model": model,
             "year_range": "2010-2024",
             "variants": []
-        })
+        ,
+                    "is_bestseller": False,
+                    "is_new": False})
         product_id += 1
     
     # Spoilers
@@ -448,7 +513,9 @@ def initialize_products():
                 "car_model": model,
                 "year_range": "2010-2024",
             "variants": []
-        })
+        ,
+                    "is_bestseller": False,
+                    "is_new": False})
         product_id += 1
     
     # Fender Parts
@@ -471,7 +538,9 @@ def initialize_products():
                 "car_model": model,
                 "year_range": "2010-2024",
                 "variants": [side]
-            })
+            ,
+                    "is_bestseller": False,
+                    "is_new": False})
             product_id += 1
     
     # ACCESSORIES - Gear Knobs
@@ -500,7 +569,9 @@ def initialize_products():
             "car_model": None,
             "year_range": None,
             "variants": []
-        })
+        ,
+                    "is_bestseller": False,
+                    "is_new": False})
         product_id += 1
     
     # Wind Breakers
@@ -522,7 +593,9 @@ def initialize_products():
             "car_model": model,
             "year_range": "2010-2024",
             "variants": []
-        })
+        ,
+                    "is_bestseller": False,
+                    "is_new": False})
         product_id += 1
     
     # Mud Flaps
@@ -545,7 +618,9 @@ def initialize_products():
             "car_model": None,
             "year_range": None,
             "variants": []
-        })
+        ,
+                    "is_bestseller": False,
+                    "is_new": False})
         product_id += 1
     
     # Boot Shocks / Boot Struts
@@ -568,7 +643,9 @@ def initialize_products():
                 "car_model": model,
                 "year_range": "2010-2024",
                 "variants": [side]
-            })
+            ,
+                    "is_bestseller": False,
+                    "is_new": False})
             product_id += 1
     
     # Car Mats
@@ -597,7 +674,9 @@ def initialize_products():
             "car_model": None,
             "year_range": None,
             "variants": []
-        })
+        ,
+                    "is_bestseller": False,
+                    "is_new": False})
         product_id += 1
     
     # Interior Trims
@@ -620,7 +699,9 @@ def initialize_products():
             "car_model": None,
             "year_range": None,
             "variants": []
-        })
+        ,
+                    "is_bestseller": False,
+                    "is_new": False})
         product_id += 1
     
     # Additional products to reach 150+
@@ -651,7 +732,9 @@ def initialize_products():
             "car_model": None,
             "year_range": None,
             "variants": []
-        })
+        ,
+                    "is_bestseller": False,
+                    "is_new": False})
         product_id += 1
     
     # More body parts
@@ -681,7 +764,9 @@ def initialize_products():
                 "car_model": model,
                 "year_range": "2010-2024",
                 "variants": []
-            })
+            ,
+                    "is_bestseller": False,
+                    "is_new": False})
             product_id += 1
 
 # Initialize products
