@@ -1,4 +1,5 @@
-import { useSearchParams } from 'react-router-dom';
+import { useState } from 'react';
+import { useSearchParams, Link } from 'react-router-dom';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import ProductGrid from '../components/ProductGrid';
@@ -7,6 +8,7 @@ const Home = () => {
   const [searchParams] = useSearchParams();
   const searchQuery = searchParams.get('search') || '';
   const categoryFilter = searchParams.get('category') || '';
+  const [filterType, setFilterType] = useState('bestsellers');
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -63,7 +65,38 @@ const Home = () => {
         {/* Products Section */}
         <section className="py-8 lg:py-12 bg-gray-50">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <ProductGrid searchQuery={searchQuery} initialCategory={categoryFilter} />
+            {/* Filter Selector */}
+            <div className="mb-6 flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                <label htmlFor="product-filter" className="text-lg font-semibold text-gray-900">
+                  Show:
+                </label>
+                <select
+                  id="product-filter"
+                  value={filterType}
+                  onChange={(e) => setFilterType(e.target.value)}
+                  className="px-4 py-2 border-2 border-gray-300 rounded-lg text-base font-medium focus:ring-2 focus:ring-[#FF6B35] focus:border-[#FF6B35] bg-white"
+                >
+                  <option value="bestsellers">Bestsellers</option>
+                  <option value="featured">Featured</option>
+                  <option value="new">New Arrivals</option>
+                  <option value="all">All Products</option>
+                </select>
+              </div>
+              <Link
+                to="/shop"
+                className="px-6 py-2 bg-[#FF6B35] text-white rounded-lg font-semibold hover:bg-[#e55a2b] transition-colors"
+              >
+                View All Products →
+              </Link>
+            </div>
+
+            <ProductGrid 
+              searchQuery={searchQuery} 
+              initialCategory={categoryFilter}
+              filterType={filterType}
+              limit={24}
+            />
           </div>
         </section>
       </main>

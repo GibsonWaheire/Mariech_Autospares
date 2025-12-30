@@ -9,6 +9,56 @@ CORS(app, resources={r"/*": {"origins": "*"}})
 # Comprehensive products database with 150+ products
 products: List[Dict] = []
 
+# Helper function to create 2-paragraph product descriptions
+def create_product_description(product_name: str, category: str, subcategory: str, size: Optional[str] = None, model: Optional[str] = None) -> str:
+    """Create a 2-paragraph description for a product"""
+    
+    # First paragraph - Marketing/benefits focused
+    name_lower = product_name.lower()
+    
+    if "led" in name_lower and "headlight" in name_lower:
+        para1 = f"Experience superior visibility and enhanced safety with our premium {product_name.lower()}. These high-performance LED headlights deliver exceptional brightness and clarity, ensuring optimal road illumination in all weather conditions. Built with advanced chip technology and robust construction, they provide long-lasting reliability and energy efficiency. Perfect for drivers who demand the best in automotive lighting technology."
+    elif "projector" in name_lower:
+        para1 = f"Upgrade your vehicle's lighting system with our advanced {product_name.lower()}. Featuring precision-engineered projector optics and cutting-edge LED technology, these headlights produce a sharp, focused beam pattern that maximizes visibility while minimizing glare for oncoming traffic. The superior light output and modern design make them an ideal choice for both performance enthusiasts and everyday drivers seeking enhanced nighttime driving safety."
+    elif "fog" in name_lower or "fog light" in name_lower:
+        para1 = f"Enhance your vehicle's visibility in challenging weather conditions with our durable {product_name.lower()}. Designed to cut through fog, rain, and mist, these fog lights provide excellent peripheral illumination and improve overall driving safety. The weather-resistant construction and powerful LED technology ensure reliable performance in all conditions, making them an essential addition to any vehicle."
+    elif "turbo timer" in name_lower:
+        para1 = f"Protect your turbocharged engine investment with our professional-grade {product_name.lower()}. This essential performance accessory allows your turbo to cool down properly after driving, preventing premature wear and extending the life of your turbocharger. The digital display provides clear countdown information, while the automatic shutdown feature ensures optimal engine protection without requiring manual intervention."
+    elif "bumper" in name_lower or "bonnet" in name_lower or "spoiler" in name_lower or "fender" in name_lower:
+        para1 = f"Transform your vehicle's appearance with our high-quality {product_name.lower()}. Crafted from premium materials and designed to exact OEM specifications, this body part offers perfect fitment and durability. Whether you're replacing damaged components or upgrading your vehicle's aesthetics, this part delivers exceptional quality and long-lasting performance that matches or exceeds original equipment standards."
+    elif "gear knob" in name_lower or ("gear" in name_lower and "knob" in name_lower):
+        para1 = f"Elevate your driving experience with our premium {product_name.lower()}. Designed for both comfort and style, this gear knob provides excellent grip and ergonomic feel, making gear changes smoother and more enjoyable. The high-quality materials and precision manufacturing ensure durability and a luxurious appearance that enhances your vehicle's interior."
+    elif "wind breaker" in name_lower or "mud flap" in name_lower:
+        para1 = f"Protect your vehicle and improve comfort with our practical {product_name.lower()}. These accessories are designed to shield your vehicle from road debris, reduce wind noise, and allow fresh air circulation even during rain. Easy to install and built to last, they provide excellent value while maintaining your vehicle's appearance and comfort."
+    elif "boot shock" in name_lower or "boot strut" in name_lower:
+        para1 = f"Restore smooth and effortless operation to your vehicle's boot/trunk with our reliable {product_name.lower()}. These gas struts provide powerful lifting assistance, making it easy to open and hold your boot lid in position. Manufactured to meet or exceed OEM specifications, they ensure perfect fitment and long-lasting performance that you can depend on."
+    elif "car mat" in name_lower or ("mat" in name_lower and "car" in name_lower):
+        para1 = f"Protect your vehicle's interior flooring with our durable {product_name.lower()}. These high-quality mats are designed to trap dirt, mud, and moisture, keeping your vehicle's carpet clean and protected. The precise fitment and non-slip backing ensure they stay in place, while the easy-to-clean material makes maintenance simple and convenient."
+    elif "horn" in name_lower:
+        para1 = f"Ensure your vehicle is heard with our powerful {product_name.lower()}. Designed for reliability and clear sound projection, these horns provide excellent audible warning capability for enhanced road safety. The weather-resistant construction and easy installation make them a practical upgrade for any vehicle, ensuring you can alert other drivers effectively when needed."
+    elif "alarm" in name_lower:
+        para1 = f"Protect your vehicle investment with our comprehensive {product_name.lower()}. This advanced security system provides multiple layers of protection, including shock sensors, remote control, and audible alerts. The user-friendly interface and reliable performance give you peace of mind, knowing your vehicle is protected against theft and unauthorized access."
+    elif "lens" in name_lower or "lenses" in name_lower:
+        para1 = f"Restore crystal-clear visibility with our premium {product_name.lower()}. These replacement lenses are designed to eliminate fogging, yellowing, and cloudiness that can reduce your headlight's effectiveness over time. Made from high-quality polycarbonate material, they offer excellent clarity and UV resistance, ensuring your headlights perform like new while maintaining their appearance for years to come."
+    elif "drl" in name_lower or "daytime running" in name_lower:
+        para1 = f"Enhance your vehicle's visibility and modern appearance with our stylish {product_name.lower()}. These daytime running lights not only improve safety by making your vehicle more visible to other drivers but also add a contemporary, premium look to your vehicle. The energy-efficient LED technology provides bright, consistent illumination while consuming minimal power, making them both practical and stylish."
+    elif "trim" in name_lower or "interior" in name_lower:
+        para1 = f"Elevate your vehicle's interior aesthetics with our premium {product_name.lower()}. These high-quality interior components are designed to enhance both the look and feel of your vehicle's cabin. Crafted from durable materials and finished to match OEM specifications, they provide a luxurious appearance while maintaining long-lasting durability and easy maintenance."
+    else:
+        para1 = f"Discover exceptional quality and performance with our premium {product_name.lower()}. Designed to meet the highest standards of automotive excellence, this product delivers reliable performance and excellent value. Whether you're maintaining your vehicle or upgrading its capabilities, this component provides the quality and durability you expect from a trusted autospare dealer."
+    
+    # Second paragraph - Technical/compatibility focused
+    size_info = f" Available in {size} size configuration" if size else ""
+    
+    if model and model != "Universal" and model != "All Models":
+        compat_info = f" Specifically designed for {model} models, ensuring perfect fitment and compatibility."
+    else:
+        compat_info = " Universal fitment design makes this product compatible with a wide range of vehicle makes and models."
+    
+    para2 = f"This product features precision engineering and quality materials for optimal performance.{size_info}{compat_info} Installation is straightforward with plug-and-play design where applicable, and all products come with comprehensive compatibility information. For specific fitment questions or technical support, our expert team is available to assist you in finding the perfect match for your vehicle."
+    
+    return f"{para1} {para2}"
+
 # Helper function to generate 2-3 images per product based on category/subcategory
 def get_product_images(category: str, subcategory: str = None, product_name: str = "") -> List[str]:
     """Generate 2-3 sample images for a product based on its category"""
@@ -174,7 +224,7 @@ def initialize_products():
                     "original_price": original_price,
                     "discount_percent": discount_percent if discount_percent > 0 else None,
                     "price_varies": headlight.get("price_varies", False),
-                    "description": f"{headlight['description']}. Size: {size}",
+                    "description": create_product_description(f"{headlight['name']} - {size}", "Lighting & Electrical", "LED Headlights", size, model),
                     "stock": 15 if headlight.get("price_varies") else 25,
                     "images": get_product_images("Lighting & Electrical", "LED Headlights", f"{headlight['name']} - {size}"),
                     "sku": f"LED-{size}-{product_id:03d}",
@@ -216,7 +266,7 @@ def initialize_products():
                 "original_price": original_price,
                 "discount_percent": discount_percent if discount_percent > 0 else None,
                 "price_varies": False,
-                "description": f"Advanced projector headlight system with {size} bulb size",
+                "description": create_product_description(f"{proj['name']} - {size}", "Lighting & Electrical", "Projector Headlights", size, None),
                 "stock": 20,
                 "images": get_product_images("Lighting & Electrical", "Projector Headlights"),
                 "sku": f"PROJ-{size}-{product_id:03d}",
@@ -247,7 +297,7 @@ def initialize_products():
                 "subcategory": "Fog Lights",
                 "price": fog["base_price"],
                 "price_varies": False,
-                "description": f"High-quality {fog_type.lower()} fog lights for improved visibility",
+                "description": create_product_description(f"{fog_type} LED Fog Light", "Lighting & Electrical", "Fog Lights", None, None),
                 "stock": 18,
                     "images": get_product_images("Lighting & Electrical", "Fog Lights"),
                 "sku": f"FOG-{product_id:03d}",
@@ -271,7 +321,7 @@ def initialize_products():
             "subcategory": "Headlight Lenses",
             "price": None,
             "price_varies": True,
-            "description": f"Replacement headlight lenses for {car_model}",
+            "description": create_product_description(f"Headlight Lens Cover - {car_model}", "Lighting & Electrical", "Headlight Lenses", None, car_model),
             "stock": 12,
             "images": get_product_images("Lighting & Electrical", "Headlight Lenses"),
             "sku": f"LENS-{product_id:03d}",
@@ -296,7 +346,7 @@ def initialize_products():
             "subcategory": "DRLs",
             "price": 3500 if "Kit" in drl else 2800,
             "price_varies": False,
-            "description": f"Daytime running lights for enhanced visibility and style",
+            "description": create_product_description(drl, "Lighting & Electrical", "DRLs", None, None),
             "stock": 22,
             "images": get_product_images("Lighting & Electrical", "DRLs"),
             "sku": f"DRL-{product_id:03d}",
@@ -328,7 +378,7 @@ def initialize_products():
             "subcategory": "Horns",
             "price": horn["price"],
             "price_varies": horn["price_varies"],
-            "description": f"High-quality horn system for {horn['car']}",
+            "description": create_product_description(f"{horn['car']} Premium Horn Set", "Lighting & Electrical", "Horns", None, horn['car']),
             "stock": 15,
             "images": get_product_images("Lighting & Electrical", "Horns"),
             "sku": f"HORN-{product_id:03d}",
@@ -353,7 +403,7 @@ def initialize_products():
             "subcategory": "Alarms",
             "price": 3500 if "Basic" in alarm else (5500 if "Remote" in alarm else (12000 if "GPS" in alarm else 4500)),
             "price_varies": False,
-            "description": f"Advanced security alarm system for vehicle protection",
+            "description": create_product_description(alarm, "Lighting & Electrical", "Alarms", None, None),
             "stock": 10,
             "images": get_product_images("Lighting & Electrical", "Alarms"),
             "sku": f"ALM-{product_id:03d}",
@@ -393,7 +443,7 @@ def initialize_products():
             "original_price": original_price,
             "discount_percent": discount_percent if discount_percent > 0 else None,
             "price_varies": False,
-            "description": timer["description"],
+            "description": create_product_description(timer["name"], "Lighting & Electrical", "Turbo Timers", None, None),
             "stock": 8,
             "images": get_product_images("Lighting & Electrical", "Turbo Timers"),
             "sku": f"TT-{product_id:03d}",
@@ -418,7 +468,7 @@ def initialize_products():
             "subcategory": "Bonnets",
             "price": None,
             "price_varies": True,
-            "description": f"Replacement bonnet for {model}",
+            "description": create_product_description(f"Bonnet - {model}", "Body Parts", "Bonnets", None, model),
             "stock": 5,
             "images": get_product_images("Body Parts", "Bonnets"),
             "sku": f"BNT-{product_id:03d}",
@@ -449,7 +499,7 @@ def initialize_products():
                 "subcategory": "Bumpers",
                 "price": None,
                 "price_varies": True,
-                "description": f"Replacement {bumper['type'].lower()} for {model}",
+                "description": create_product_description(f"{bumper['type']} - {model}", "Body Parts", f"{bumper['type']} Bumpers", None, model),
                 "stock": 4,
                 "images": get_product_images("Body Parts", "Bumpers"),
                 "sku": f"BMP-{product_id:03d}",
@@ -473,7 +523,7 @@ def initialize_products():
             "subcategory": "Bumper Lips",
             "price": 3500,
             "price_varies": False,
-            "description": f"Stylish bumper lip for {model}",
+            "description": create_product_description(f"Bumper Lip - {model}", "Body Parts", "Bumper Lips", None, model),
             "stock": 12,
             "images": get_product_images("Body Parts", "Bumper Lips"),
             "sku": f"BLIP-{product_id:03d}",
@@ -503,7 +553,7 @@ def initialize_products():
                 "subcategory": "Spoilers",
                 "price": 4500,
                 "price_varies": False,
-                "description": f"Performance {spoiler['type'].lower()} for {model}",
+                "description": create_product_description(f"{spoiler['type']} - {model}", "Body Parts", "Spoilers", None, model),
                 "stock": 8,
                 "images": get_product_images("Body Parts", "Spoilers"),
                 "sku": f"SPL-{product_id:03d}",
@@ -528,7 +578,7 @@ def initialize_products():
                 "subcategory": "Fender Parts",
                 "price": None,
                 "price_varies": True,
-                "description": f"Replacement {side.lower()} fender for {model}",
+                "description": create_product_description(f"{side.capitalize()} Fender - {model}", "Body Parts", "Fender Parts", None, model),
                 "stock": 6,
                 "images": get_product_images("Body Parts", "Fender Parts"),
                 "sku": f"FND-{product_id:03d}",
@@ -559,7 +609,7 @@ def initialize_products():
             "subcategory": "Gear Knobs",
             "price": knob["price"],
             "price_varies": False,
-            "description": f"Premium {knob['type'].lower()} for enhanced driving experience",
+            "description": create_product_description(f"{knob['type']} Gear Knob", "Accessories", "Gear Knobs", None, None),
             "stock": 20,
             "images": get_product_images("Accessories", "Gear Knobs"),
             "sku": f"GK-{product_id:03d}",
@@ -583,7 +633,7 @@ def initialize_products():
             "subcategory": "Wind Breakers",
             "price": None,
             "price_varies": True,
-            "description": f"Model-specific wind breaker for {model}",
+            "description": create_product_description(f"Wind Breakers - {model}", "Accessories", "Wind Breakers", None, model),
             "stock": 10,
             "images": get_product_images("Accessories", "Wind Breakers"),
             "sku": f"WB-{product_id:03d}",
@@ -608,7 +658,7 @@ def initialize_products():
             "subcategory": "Mud Flaps",
             "price": 1800 if "Full Set" in flap_type else 1000,
             "price_varies": False,
-            "description": f"Protective {flap_type.lower()} for vehicle body protection",
+            "description": create_product_description(f"Universal Mud Flaps - {flap_type}", "Accessories", "Mud Flaps", None, None),
             "stock": 25,
             "images": get_product_images("Accessories", "Mud Flaps"),
             "sku": f"MF-{product_id:03d}",
@@ -633,7 +683,7 @@ def initialize_products():
                 "subcategory": "Boot Shocks",
                 "price": None,
                 "price_varies": True,
-                "description": f"Replacement boot {side.lower()} shock/strut for {model}",
+                "description": create_product_description(f"Boot Struts - {model}", "Accessories", "Boot Shocks", None, model),
                 "stock": 15,
                 "images": get_product_images("Accessories", "Boot Shocks"),
                 "sku": f"BS-{product_id:03d}",
@@ -664,7 +714,7 @@ def initialize_products():
             "subcategory": "Car Mats",
             "price": mat.get("price"),
             "price_varies": mat.get("price_varies", False),
-            "description": f"High-quality {mat['type'].lower()} for vehicle interior protection",
+            "description": create_product_description(f"{mat['type']} Car Mats", "Accessories", "Car Mats", None, None),
             "stock": 30,
             "images": get_product_images("Accessories", "Car Mats"),
             "sku": f"MAT-{product_id:03d}",
@@ -689,7 +739,7 @@ def initialize_products():
             "subcategory": "Interior Trims",
             "price": None,
             "price_varies": True,
-            "description": f"Replacement {trim.lower()} for various car models",
+            "description": create_product_description(f"{trim} Interior Trim", "Accessories", "Interior Trims", None, None),
             "stock": 12,
             "images": get_product_images("Accessories", "Interior Trims"),
             "sku": f"TRIM-{product_id:03d}",
@@ -722,7 +772,7 @@ def initialize_products():
             "subcategory": "LED Lights",
             "price": light["price"],
             "price_varies": False,
-            "description": f"Energy-efficient {light['name'].lower()}",
+            "description": create_product_description(light['name'], "Performance & Styling", "LED Projectors", None, None),
             "stock": 20,
             "images": get_product_images("Lighting & Electrical", "LED Lights"),
             "sku": f"LED-LT-{product_id:03d}",
@@ -754,7 +804,7 @@ def initialize_products():
                 "subcategory": part["name"].split(" - ")[0],
                 "price": None,
                 "price_varies": True,
-                "description": f"Replacement {part['name'].lower()} for {model}",
+                "description": create_product_description(f"{part['name']} - {model}", "Body Parts", part["name"].split(" - ")[0], None, model),
                 "stock": 8,
                 "images": get_product_images("Body Parts", part["name"].split(" - ")[0]),
                 "sku": f"BP-{product_id:03d}",
@@ -822,6 +872,21 @@ def get_products():
     in_stock = request.args.get('in_stock')
     if in_stock and in_stock.lower() == 'true':
         filtered = [p for p in filtered if p.get('stock', 0) > 0]
+    
+    # Bestseller filter
+    bestseller = request.args.get('bestseller')
+    if bestseller and bestseller.lower() == 'true':
+        filtered = [p for p in filtered if p.get('is_bestseller', False) == True]
+    
+    # Featured filter (use bestseller as featured for now)
+    featured = request.args.get('featured')
+    if featured and featured.lower() == 'true':
+        filtered = [p for p in filtered if p.get('is_bestseller', False) == True]
+    
+    # New arrivals filter
+    new = request.args.get('new')
+    if new and new.lower() == 'true':
+        filtered = [p for p in filtered if p.get('is_new', False) == True]
     
     # Search query
     search = request.args.get('search')

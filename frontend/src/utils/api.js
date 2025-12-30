@@ -11,6 +11,9 @@ export const getProducts = async (filters = {}) => {
   if (filters.min_price) params.append('min_price', filters.min_price);
   if (filters.max_price) params.append('max_price', filters.max_price);
   if (filters.in_stock) params.append('in_stock', filters.in_stock);
+  if (filters.bestseller) params.append('bestseller', filters.bestseller);
+  if (filters.featured) params.append('featured', filters.featured);
+  if (filters.new) params.append('new', filters.new);
   if (filters.search) params.append('search', filters.search);
   if (filters.sort) params.append('sort', filters.sort);
   

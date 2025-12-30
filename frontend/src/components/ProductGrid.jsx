@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import ProductCard from './ProductCard';
 import { getProducts, getCategories, getCarMakes, getSizes } from '../utils/api';
 
-const ProductGrid = ({ searchQuery = '', initialCategory = '' }) => {
+const ProductGrid = ({ searchQuery = '', initialCategory = '', filterType = 'all', limit = null }) => {
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
   const [carMakes, setCarMakes] = useState([]);
@@ -43,13 +44,26 @@ const ProductGrid = ({ searchQuery = '', initialCategory = '' }) => {
           ...filters,
           search: searchQuery || undefined,
         };
+
+        // Add filterType to params
+        if (filterType === 'bestsellers') {
+          filterParams.bestseller = 'true';
+        } else if (filterType === 'featured') {
+          filterParams.featured = 'true';
+        } else if (filterType === 'new') {
+          filterParams.new = 'true';
+        }
+
         Object.keys(filterParams).forEach(key => {
           if (filterParams[key] === '' || filterParams[key] === false) {
             delete filterParams[key];
           }
         });
         const data = await getProducts(filterParams);
-        setProducts(data);
+        
+        // Apply limit if specified
+        const limitedProducts = limit ? data.slice(0, limit) : data;
+        setProducts(limitedProducts);
       } catch (error) {
         console.error('Error fetching products:', error);
       } finally {
@@ -58,7 +72,7 @@ const ProductGrid = ({ searchQuery = '', initialCategory = '' }) => {
     };
 
     fetchProducts();
-  }, [filters, searchQuery]);
+  }, [filters, searchQuery, filterType, limit]);
 
   const handleFilterChange = (key, value) => {
     setFilters(prev => ({
@@ -66,6 +80,9 @@ const ProductGrid = ({ searchQuery = '', initialCategory = '' }) => {
       [key]: value
     }));
   };
+
+  const displayedProducts = limit ? products.slice(0, limit) : products;
+  const hasMoreProducts = limit && products.length >= limit;
 
   return (
     <div className="flex flex-col lg:flex-row gap-6">
@@ -156,16 +173,26 @@ const ProductGrid = ({ searchQuery = '', initialCategory = '' }) => {
             <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-[#FF6B35] border-t-transparent"></div>
             <p className="mt-4 text-gray-600">Loading products...</p>
           </div>
-        ) : products.length > 0 ? (
+        ) : displayedProducts.length > 0 ? (
           <>
             <div className="mb-4 text-gray-700 font-medium">
-              {products.length} products found
+              {displayedProducts.length} {limit ? 'products' : 'products found'}
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {products.map((product) => (
+              {displayedProducts.map((product) => (
                 <ProductCard key={product.id} product={product} />
               ))}
             </div>
+            {hasMoreProducts && (
+              <div className="mt-8 text-center">
+                <Link
+                  to="/shop"
+                  className="inline-block px-6 py-3 bg-[#FF6B35] text-white rounded-lg font-semibold hover:bg-[#e55a2b] transition-colors"
+                >
+                  View All Products →
+                </Link>
+              </div>
+            )}
           </>
         ) : (
           <div className="text-center py-20 bg-white rounded-lg shadow-sm">
@@ -178,4 +205,3 @@ const ProductGrid = ({ searchQuery = '', initialCategory = '' }) => {
 };
 
 export default ProductGrid;
-
