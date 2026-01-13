@@ -44,7 +44,7 @@ const Contact = () => {
 
   const whatsappNumbers = [
     { number: '254719101851', display: '0719 101 851' },
-    { number: '254994382764', display: '0994 382 764' }
+    { number: '254794382764', display: '0794 382 764' }
   ];
 
   return (
@@ -112,8 +112,8 @@ const Contact = () => {
                   Business Hours
                 </h3>
                 <p className="text-gray-700">
-                  Monday - Friday: 8:00 AM - 6:00 PM<br />
-                  Saturday: 9:00 AM - 4:00 PM<br />
+                  Monday - Friday: 8:00 AM - 7:00 PM<br />
+                  Saturday: 8:00 AM - 5:00 PM<br />
                   Sunday: Closed
                 </p>
               </div>
