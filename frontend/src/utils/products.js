@@ -91,16 +91,32 @@ export const filterProducts = (filters = {}) => {
     filtered = filtered.filter(p => p.is_new === true);
   }
 
-  // Search query
-  if (filters.search) {
-    const searchLower = filters.search.toLowerCase();
-    filtered = filtered.filter(p => 
-      p.name?.toLowerCase().includes(searchLower) ||
-      p.description?.toLowerCase().includes(searchLower) ||
-      p.sku?.toLowerCase().includes(searchLower) ||
-      (p.car_model && p.car_model.toLowerCase().includes(searchLower)) ||
-      (p.size && p.size.toLowerCase().includes(searchLower))
-    );
+  // Search query - improved search across multiple fields
+  if (filters.search && filters.search.trim()) {
+    const searchLower = filters.search.toLowerCase().trim();
+    const searchTerms = searchLower.split(/\s+/).filter(term => term.length > 0);
+    
+    filtered = filtered.filter(p => {
+      // Search in multiple fields
+      const searchableText = [
+        p.name,
+        p.description,
+        p.sku,
+        p.category,
+        p.subcategory,
+        p.car_make,
+        p.car_model,
+        p.size,
+        p.compatible_cars?.join(' '),
+        p.variants?.join(' ')
+      ]
+        .filter(Boolean)
+        .join(' ')
+        .toLowerCase();
+      
+      // Check if all search terms match (AND logic)
+      return searchTerms.every(term => searchableText.includes(term));
+    });
   }
 
   // Sorting
