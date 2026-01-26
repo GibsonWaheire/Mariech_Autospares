@@ -14,3 +14,57 @@ code {
     monospace;
 }
 
+/* Animations */
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes scroll-left {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.animate-fade-in {
+  animation: fade-in 0.5s ease-out;
+}
+
+.animate-scroll-left {
+  animation: scroll-left 30s linear infinite;
+}
+
+/* Smooth scrolling */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Touch-friendly button sizes */
+@media (max-width: 768px) {
+  button, a[role="button"] {
+    min-height: 44px;
+    min-width: 44px;
+  }
+}
+
+/* Prevent text selection on buttons */
+button, a[role="button"] {
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+}
+
+/* Improve focus visibility for accessibility */
+*:focus-visible {
+  outline: 2px solid #FF6B35;
+  outline-offset: 2px;
+}
+

@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { getProductById } from '../utils/products';
+import { getImagePath } from '../utils/imageUtils';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 
@@ -8,7 +9,10 @@ import Footer from '../components/Footer';
 const ProductImageGallery = ({ images, productName }) => {
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   
-  const productImages = images && images.length > 0 ? images : [];
+  // Map images to correct paths
+  const productImages = images && images.length > 0 
+    ? images.map(img => getImagePath(img)).filter(Boolean)
+    : [];
 
   if (productImages.length === 0) {
     return (
