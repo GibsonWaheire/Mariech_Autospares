@@ -1,14 +1,13 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import ProductCard from './ProductCard';
-import { getProducts, getCategories, getCarMakes, getSizes } from '../utils/api';
+import { filterProducts, getCategories, getCarMakes, getSizes } from '../utils/products';
 
 const ProductGrid = ({ searchQuery = '', initialCategory = '', filterType = 'all', limit = null }) => {
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
   const [carMakes, setCarMakes] = useState([]);
   const [sizes, setSizes] = useState([]);
-  const [loading, setLoading] = useState(true);
   const [filters, setFilters] = useState({
     category: initialCategory,
     car_make: '',
@@ -17,61 +16,41 @@ const ProductGrid = ({ searchQuery = '', initialCategory = '', filterType = 'all
     sort: 'popularity'
   });
 
+  // Load filter options from local data
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const [categoriesData, makesData, sizesData] = await Promise.all([
-          getCategories(),
-          getCarMakes(),
-          getSizes()
-        ]);
-        setCategories(categoriesData);
-        setCarMakes(makesData);
-        setSizes(sizesData);
-      } catch (error) {
-        console.error('Error fetching data:', error);
-      }
-    };
-
-    fetchData();
+    setCategories(getCategories());
+    setCarMakes(getCarMakes());
+    setSizes(getSizes());
   }, []);
 
+  // Filter products client-side
   useEffect(() => {
-    const fetchProducts = async () => {
-      setLoading(true);
-      try {
-        const filterParams = {
-          ...filters,
-          search: searchQuery || undefined,
-        };
-
-        // Add filterType to params
-        if (filterType === 'bestsellers') {
-          filterParams.bestseller = 'true';
-        } else if (filterType === 'featured') {
-          filterParams.featured = 'true';
-        } else if (filterType === 'new') {
-          filterParams.new = 'true';
-        }
-
-        Object.keys(filterParams).forEach(key => {
-          if (filterParams[key] === '' || filterParams[key] === false) {
-            delete filterParams[key];
-          }
-        });
-        const data = await getProducts(filterParams);
-        
-        // Apply limit if specified
-        const limitedProducts = limit ? data.slice(0, limit) : data;
-        setProducts(limitedProducts);
-      } catch (error) {
-        console.error('Error fetching products:', error);
-      } finally {
-        setLoading(false);
-      }
+    const filterParams = {
+      ...filters,
+      search: searchQuery || undefined,
     };
 
-    fetchProducts();
+    // Add filterType to params
+    if (filterType === 'bestsellers') {
+      filterParams.bestseller = true;
+    } else if (filterType === 'featured') {
+      filterParams.featured = true;
+    } else if (filterType === 'new') {
+      filterParams.new = true;
+    }
+
+    // Clean up filter params
+    Object.keys(filterParams).forEach(key => {
+      if (filterParams[key] === '' || filterParams[key] === false) {
+        delete filterParams[key];
+      }
+    });
+    
+    const filtered = filterProducts(filterParams);
+    
+    // Apply limit if specified
+    const limitedProducts = limit ? filtered.slice(0, limit) : filtered;
+    setProducts(limitedProducts);
   }, [filters, searchQuery, filterType, limit]);
 
   const handleFilterChange = (key, value) => {
@@ -168,12 +147,7 @@ const ProductGrid = ({ searchQuery = '', initialCategory = '', filterType = 'all
 
       {/* Products Grid */}
       <main className="flex-1">
-        {loading ? (
-          <div className="text-center py-20">
-            <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-[#FF6B35] border-t-transparent"></div>
-            <p className="mt-4 text-gray-600">Loading products...</p>
-          </div>
-        ) : displayedProducts.length > 0 ? (
+        {displayedProducts.length > 0 ? (
           <>
             <div className="mb-4 text-gray-700 font-medium">
               {displayedProducts.length} {limit ? 'products' : 'products found'}

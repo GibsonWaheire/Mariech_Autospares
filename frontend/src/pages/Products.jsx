@@ -1,18 +1,19 @@
 import { useEffect, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import ProductCard from '../components/ProductCard';
-import { getProducts, getCategories, getCarMakes, getCarModels, getSizes, getSubcategories } from '../utils/api';
+import { filterProducts, getCategories, getCarMakes, getCarModels, getSizes, getSubcategories } from '../utils/products';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 
 const Products = () => {
+  const [searchParams, setSearchParams] = useSearchParams();
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
   const [subcategories, setSubcategories] = useState([]);
   const [carMakes, setCarMakes] = useState([]);
   const [carModels, setCarModels] = useState([]);
   const [sizes, setSizes] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState(searchParams.get('search') || '');
   const [filters, setFilters] = useState({
     category: '',
     subcategory: '',
@@ -30,86 +31,64 @@ const Products = () => {
     priceRange: true
   });
 
+  // Update search query when URL params change
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const [categoriesData, makesData, sizesData] = await Promise.all([
-          getCategories(),
-          getCarMakes(),
-          getSizes()
-        ]);
-        setCategories(categoriesData);
-        setCarMakes(makesData);
-        setSizes(sizesData);
-      } catch (error) {
-        console.error('Error fetching data:', error);
-      }
-    };
+    const searchParam = searchParams.get('search') || '';
+    setSearchQuery(searchParam);
+  }, [searchParams]);
 
-    fetchData();
+  // Load filter options from local data (instant, no API call)
+  useEffect(() => {
+    setCategories(getCategories());
+    setCarMakes(getCarMakes());
+    setSizes(getSizes());
   }, []);
 
+  // Filter products client-side (instant, no API call)
   useEffect(() => {
-    const fetchProducts = async () => {
-      setLoading(true);
-      try {
-        const filterParams = {
-          ...filters,
-          search: searchQuery || undefined,
-        };
-        Object.keys(filterParams).forEach(key => {
-          if (filterParams[key] === '' || filterParams[key] === false || (key === 'min_price' && filterParams[key] === 0) || (key === 'max_price' && filterParams[key] === 100000)) {
-            if (key !== 'min_price' && key !== 'max_price') {
-              delete filterParams[key];
-            }
-          }
-        });
-        if (filterParams.min_price === 0 && filterParams.max_price === 100000) {
-          delete filterParams.min_price;
-          delete filterParams.max_price;
-        }
-        const data = await getProducts(filterParams);
-        setProducts(data);
-      } catch (error) {
-        console.error('Error fetching products:', error);
-      } finally {
-        setLoading(false);
-      }
+    const filterParams = {
+      ...filters,
+      search: searchQuery || undefined,
     };
-
-    fetchProducts();
+    
+    // Clean up filter params
+    Object.keys(filterParams).forEach(key => {
+      if (filterParams[key] === '' || filterParams[key] === false || 
+          (key === 'min_price' && filterParams[key] === 0) || 
+          (key === 'max_price' && filterParams[key] === 100000)) {
+        if (key !== 'min_price' && key !== 'max_price') {
+          delete filterParams[key];
+        }
+      }
+    });
+    
+    if (filterParams.min_price === 0 && filterParams.max_price === 100000) {
+      delete filterParams.min_price;
+      delete filterParams.max_price;
+    }
+    
+    const filtered = filterProducts(filterParams);
+    setProducts(filtered);
   }, [filters, searchQuery]);
 
+  // Get subcategories from local data
   useEffect(() => {
-    const fetchSubcategories = async () => {
-      if (filters.category) {
-        try {
-          const data = await getSubcategories(filters.category);
-          setSubcategories(data.map(s => s.name));
-        } catch (error) {
-          console.error('Error fetching subcategories:', error);
-        }
-      } else {
-        setSubcategories([]);
-      }
-    };
-    fetchSubcategories();
+    if (filters.category) {
+      const data = getSubcategories(filters.category);
+      setSubcategories(data.map(s => s.name));
+    } else {
+      setSubcategories([]);
+    }
   }, [filters.category]);
 
+  // Get car models from local data
   useEffect(() => {
-    const fetchCarModels = async () => {
-      if (filters.car_make) {
-        try {
-          const data = await getCarModels(filters.car_make);
-          setCarModels(data);
-        } catch (error) {
-          console.error('Error fetching car models:', error);
-        }
-      } else {
-        setCarModels([]);
-      }
-    };
-    fetchCarModels();
+    if (filters.car_make) {
+      const data = getCarModels(filters.car_make);
+      setCarModels(data);
+    } else {
+      setCarModels([]);
+    }
   }, [filters.car_make]);
 
   const handleFilterChange = (key, value) => {
@@ -315,10 +294,52 @@ const Products = () => {
 
           {/* Main Content Area */}
           <main className="flex-1">
+            {/* Search Bar */}
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 mb-6">
+              <form 
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  setSearchParams({ search: searchQuery });
+                }}
+                className="flex gap-2"
+              >
+                <div className="flex-1 relative">
+                  <input
+                    type="text"
+                    placeholder="Search by part name, car model, size..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="w-full px-4 py-2 pl-10 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-[#FF6B35] focus:border-[#FF6B35]"
+                  />
+                  <svg className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                  </svg>
+                </div>
+                <button
+                  type="submit"
+                  className="px-6 py-2 bg-[#FF6B35] text-white rounded-lg font-semibold hover:bg-[#e55a2b] transition-colors"
+                >
+                  Search
+                </button>
+                {searchQuery && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSearchQuery('');
+                      setSearchParams({});
+                    }}
+                    className="px-4 py-2 border-2 border-gray-300 text-gray-700 rounded-lg font-semibold hover:bg-gray-50 transition-colors"
+                  >
+                    Clear
+                  </button>
+                )}
+              </form>
+            </div>
+
             {/* Top Bar - Product Count and Sort */}
             <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 mb-6 flex items-center justify-between">
               <div className="text-gray-700 font-medium">
-                {products.length} products found
+                {products.length} products found{searchQuery && ` for "${searchQuery}"`}
               </div>
               <div className="flex items-center space-x-4">
                 <select
@@ -347,12 +368,7 @@ const Products = () => {
             </div>
 
             {/* Products Grid */}
-            {loading ? (
-              <div className="text-center py-20">
-                <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-[#FF6B35] border-t-transparent"></div>
-                <p className="mt-4 text-gray-600">Loading products...</p>
-              </div>
-            ) : products.length > 0 ? (
+            {products.length > 0 ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                 {products.map((product) => (
                   <ProductCard key={product.id} product={product} />

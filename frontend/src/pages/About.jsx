@@ -72,8 +72,12 @@ const About = () => {
               </div>
             </div>
             <div className="bg-gray-100 rounded-lg p-12 text-center">
-              <div className="w-48 h-48 bg-[#FF6B35] rounded-full flex items-center justify-center mx-auto mb-6">
-                <span className="text-white text-8xl font-bold">M</span>
+              <div className="flex items-center justify-center mx-auto mb-6">
+                <img 
+                  src="/logo.png" 
+                  alt="Mariech Autospare Logo" 
+                  className="h-48 w-auto object-contain"
+                />
               </div>
               <div className="text-2xl font-bold text-gray-900 mb-2">Mariech Autospare</div>
               <div className="text-gray-600">Quality Parts, Trusted Service</div>
@@ -142,7 +146,7 @@ const About = () => {
                 </svg>
               </div>
               <h3 className="text-lg font-bold text-gray-900 mb-2">Call Us</h3>
-              <p className="text-gray-600">0719 101 851<br />0994 382 764</p>
+              <p className="text-gray-600">0719 101 851<br />0794 382 764</p>
             </div>
 
             <div className="bg-white border border-gray-200 rounded-lg p-6 text-center">
@@ -152,7 +156,7 @@ const About = () => {
                 </svg>
               </div>
               <h3 className="text-lg font-bold text-gray-900 mb-2">Business Hours</h3>
-              <p className="text-gray-600">Monday - Saturday<br />8:00 AM - 6:00 PM</p>
+              <p className="text-gray-600">Monday - Friday: 8:00 AM - 7:00 PM<br />Saturday: 8:00 AM - 5:00 PM</p>
             </div>
           </div>
           <div className="text-center mt-8">

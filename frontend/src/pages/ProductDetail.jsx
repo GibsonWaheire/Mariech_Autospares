@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { getProduct } from '../utils/api';
+import { getProductById } from '../utils/products';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 
@@ -36,7 +36,7 @@ const ProductImageGallery = ({ images, productName }) => {
   return (
     <div className="space-y-4">
       {/* Main Image */}
-      <div className="h-96 bg-gray-200 rounded-lg overflow-hidden">
+      <div className="bg-gray-200 rounded-lg h-[600px] flex items-center justify-center overflow-hidden">
         <img
           src={productImages[selectedImageIndex]}
           alt={`${productName} - Image ${selectedImageIndex + 1}`}
@@ -54,7 +54,7 @@ const ProductImageGallery = ({ images, productName }) => {
             <button
               key={index}
               onClick={() => setSelectedImageIndex(index)}
-              className={`flex-shrink-0 w-24 h-24 rounded-lg overflow-hidden border-2 transition-all ${
+              className={`flex-shrink-0 w-24 h-24 rounded-lg overflow-hidden border-2 transition-all flex items-center justify-center bg-gray-100 ${
                 selectedImageIndex === index
                   ? 'border-[#FF6B35] ring-2 ring-[#FF6B35] ring-opacity-50'
                   : 'border-gray-300 hover:border-gray-400'
@@ -63,7 +63,7 @@ const ProductImageGallery = ({ images, productName }) => {
               <img
                 src={img}
                 alt={`${productName} thumbnail ${index + 1}`}
-                className="w-full h-full object-cover"
+                className="max-w-full max-h-full w-auto h-auto"
                 onError={(e) => {
                   e.target.src = 'https://via.placeholder.com/100x100?text=No+Image';
                 }}
@@ -79,24 +79,15 @@ const ProductImageGallery = ({ images, productName }) => {
 const ProductDetail = () => {
   const { id } = useParams();
   const [product, setProduct] = useState(null);
-  const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    const fetchProduct = async () => {
-      try {
-        const data = await getProduct(id);
-        setProduct(data);
-      } catch (err) {
-        setError('Product not found');
-        console.error('Error fetching product:', err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    if (id) {
-      fetchProduct();
+    // Get product from local data (instant, no API call)
+    const productData = getProductById(id);
+    if (productData) {
+      setProduct(productData);
+    } else {
+      setError('Product not found');
     }
   }, [id]);
 
@@ -108,23 +99,6 @@ const ProductDetail = () => {
       minimumFractionDigits: 0,
     }).format(price);
   };
-
-  if (loading) {
-    return (
-      <div className="min-h-screen flex flex-col">
-        <Header />
-        <main className="flex-1 py-12 bg-gray-50">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="text-center">
-              <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-[#FF6B35]"></div>
-              <p className="mt-4 text-gray-600">Loading product...</p>
-            </div>
-          </div>
-        </main>
-        <Footer />
-      </div>
-    );
-  }
 
   if (error || !product) {
     return (
@@ -147,7 +121,7 @@ const ProductDetail = () => {
 
   const whatsappNumbers = [
     { number: '254719101851', display: '0719 101 851' },
-    { number: '254994382764', display: '0994 382 764' }
+    { number: '254794382764', display: '0794 382 764' }
   ];
 
   const productImages = product.images && product.images.length > 0 ? product.images : [];

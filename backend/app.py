@@ -2,6 +2,7 @@ from flask import Flask, jsonify, request
 from flask_cors import CORS
 from datetime import datetime
 from typing import Dict, List, Optional
+import re
 
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "*"}})
@@ -9,178 +10,437 @@ CORS(app, resources={r"/*": {"origins": "*"}})
 # Comprehensive products database with 150+ products
 products: List[Dict] = []
 
-# Helper function to create 2-paragraph product descriptions
-def create_product_description(product_name: str, category: str, subcategory: str, size: Optional[str] = None, model: Optional[str] = None) -> str:
-    """Create a 2-paragraph description for a product"""
+# Image Registry to track used images and prevent duplicates
+class ImageRegistry:
+    """Tracks image usage to ensure no duplicate images across products"""
+    def __init__(self):
+        self.used_images = set()  # Set of image filenames that have been assigned
+        self.product_image_map = {}  # product_id -> [image filenames]
     
-    # First paragraph - Marketing/benefits focused
-    name_lower = product_name.lower()
+    def register_images(self, product_id: int, images: List[str]) -> None:
+        """Register images for a product and mark them as used"""
+        # Extract filenames from URLs if needed
+        image_filenames = []
+        for img in images:
+            # Extract filename from URL path
+            filename = img.split('/')[-1] if '/' in img else img
+            # Decode URL encoding
+            from urllib.parse import unquote
+            filename = unquote(filename)
+            image_filenames.append(filename)
+            self.used_images.add(filename)
+        
+        self.product_image_map[product_id] = image_filenames
     
-    if "led" in name_lower and "headlight" in name_lower:
-        para1 = f"Experience superior visibility and enhanced safety with our premium {product_name.lower()}. These high-performance LED headlights deliver exceptional brightness and clarity, ensuring optimal road illumination in all weather conditions. Built with advanced chip technology and robust construction, they provide long-lasting reliability and energy efficiency. Perfect for drivers who demand the best in automotive lighting technology."
-    elif "projector" in name_lower:
-        para1 = f"Upgrade your vehicle's lighting system with our advanced {product_name.lower()}. Featuring precision-engineered projector optics and cutting-edge LED technology, these headlights produce a sharp, focused beam pattern that maximizes visibility while minimizing glare for oncoming traffic. The superior light output and modern design make them an ideal choice for both performance enthusiasts and everyday drivers seeking enhanced nighttime driving safety."
-    elif "fog" in name_lower or "fog light" in name_lower:
-        para1 = f"Enhance your vehicle's visibility in challenging weather conditions with our durable {product_name.lower()}. Designed to cut through fog, rain, and mist, these fog lights provide excellent peripheral illumination and improve overall driving safety. The weather-resistant construction and powerful LED technology ensure reliable performance in all conditions, making them an essential addition to any vehicle."
-    elif "turbo timer" in name_lower:
-        para1 = f"Protect your turbocharged engine investment with our professional-grade {product_name.lower()}. This essential performance accessory allows your turbo to cool down properly after driving, preventing premature wear and extending the life of your turbocharger. The digital display provides clear countdown information, while the automatic shutdown feature ensures optimal engine protection without requiring manual intervention."
-    elif "bumper" in name_lower or "bonnet" in name_lower or "spoiler" in name_lower or "fender" in name_lower:
-        para1 = f"Transform your vehicle's appearance with our high-quality {product_name.lower()}. Crafted from premium materials and designed to exact OEM specifications, this body part offers perfect fitment and durability. Whether you're replacing damaged components or upgrading your vehicle's aesthetics, this part delivers exceptional quality and long-lasting performance that matches or exceeds original equipment standards."
-    elif "gear knob" in name_lower or ("gear" in name_lower and "knob" in name_lower):
-        para1 = f"Elevate your driving experience with our premium {product_name.lower()}. Designed for both comfort and style, this gear knob provides excellent grip and ergonomic feel, making gear changes smoother and more enjoyable. The high-quality materials and precision manufacturing ensure durability and a luxurious appearance that enhances your vehicle's interior."
-    elif "wind breaker" in name_lower or "mud flap" in name_lower:
-        para1 = f"Protect your vehicle and improve comfort with our practical {product_name.lower()}. These accessories are designed to shield your vehicle from road debris, reduce wind noise, and allow fresh air circulation even during rain. Easy to install and built to last, they provide excellent value while maintaining your vehicle's appearance and comfort."
-    elif "boot shock" in name_lower or "boot strut" in name_lower:
-        para1 = f"Restore smooth and effortless operation to your vehicle's boot/trunk with our reliable {product_name.lower()}. These gas struts provide powerful lifting assistance, making it easy to open and hold your boot lid in position. Manufactured to meet or exceed OEM specifications, they ensure perfect fitment and long-lasting performance that you can depend on."
-    elif "car mat" in name_lower or ("mat" in name_lower and "car" in name_lower):
-        para1 = f"Protect your vehicle's interior flooring with our durable {product_name.lower()}. These high-quality mats are designed to trap dirt, mud, and moisture, keeping your vehicle's carpet clean and protected. The precise fitment and non-slip backing ensure they stay in place, while the easy-to-clean material makes maintenance simple and convenient."
-    elif "horn" in name_lower:
-        para1 = f"Ensure your vehicle is heard with our powerful {product_name.lower()}. Designed for reliability and clear sound projection, these horns provide excellent audible warning capability for enhanced road safety. The weather-resistant construction and easy installation make them a practical upgrade for any vehicle, ensuring you can alert other drivers effectively when needed."
-    elif "alarm" in name_lower:
-        para1 = f"Protect your vehicle investment with our comprehensive {product_name.lower()}. This advanced security system provides multiple layers of protection, including shock sensors, remote control, and audible alerts. The user-friendly interface and reliable performance give you peace of mind, knowing your vehicle is protected against theft and unauthorized access."
-    elif "lens" in name_lower or "lenses" in name_lower:
-        para1 = f"Restore crystal-clear visibility with our premium {product_name.lower()}. These replacement lenses are designed to eliminate fogging, yellowing, and cloudiness that can reduce your headlight's effectiveness over time. Made from high-quality polycarbonate material, they offer excellent clarity and UV resistance, ensuring your headlights perform like new while maintaining their appearance for years to come."
-    elif "drl" in name_lower or "daytime running" in name_lower:
-        para1 = f"Enhance your vehicle's visibility and modern appearance with our stylish {product_name.lower()}. These daytime running lights not only improve safety by making your vehicle more visible to other drivers but also add a contemporary, premium look to your vehicle. The energy-efficient LED technology provides bright, consistent illumination while consuming minimal power, making them both practical and stylish."
-    elif "trim" in name_lower or "interior" in name_lower:
-        para1 = f"Elevate your vehicle's interior aesthetics with our premium {product_name.lower()}. These high-quality interior components are designed to enhance both the look and feel of your vehicle's cabin. Crafted from durable materials and finished to match OEM specifications, they provide a luxurious appearance while maintaining long-lasting durability and easy maintenance."
-    else:
-        para1 = f"Discover exceptional quality and performance with our premium {product_name.lower()}. Designed to meet the highest standards of automotive excellence, this product delivers reliable performance and excellent value. Whether you're maintaining your vehicle or upgrading its capabilities, this component provides the quality and durability you expect from a trusted autospare dealer."
+    def is_available(self, image_filename: str) -> bool:
+        """Check if an image filename is available (not already used)"""
+        # Extract filename from URL if needed
+        filename = image_filename.split('/')[-1] if '/' in image_filename else image_filename
+        from urllib.parse import unquote
+        filename = unquote(filename)
+        return filename not in self.used_images
     
-    # Second paragraph - Technical/compatibility focused
-    size_info = f" Available in {size} size configuration" if size else ""
-    
-    if model and model != "Universal" and model != "All Models":
-        compat_info = f" Specifically designed for {model} models, ensuring perfect fitment and compatibility."
-    else:
-        compat_info = " Universal fitment design makes this product compatible with a wide range of vehicle makes and models."
-    
-    para2 = f"This product features precision engineering and quality materials for optimal performance.{size_info}{compat_info} Installation is straightforward with plug-and-play design where applicable, and all products come with comprehensive compatibility information. For specific fitment questions or technical support, our expert team is available to assist you in finding the perfect match for your vehicle."
-    
-    return f"{para1} {para2}"
+    def get_unique_alternatives(self, preferred_images: List[str], category: str, subcategory: str, all_image_mappings: Dict) -> List[str]:
+        """Find alternative unique images if preferred ones are already taken"""
+        available_images = []
+        
+        # First, try to find images from the same category/subcategory
+        cat_lower = category.lower() if category else ""
+        subcat_lower = (subcategory or "").lower()
+        
+        # Collect all images from matching categories
+        candidate_images = []
+        for key, images in all_image_mappings.items():
+            if (cat_lower and any(word in key for word in cat_lower.split() if len(word) > 2)) or \
+               (subcat_lower and any(word in key for word in subcat_lower.split() if len(word) > 2)):
+                candidate_images.extend(images)
+        
+        # Add preferred images first (they might have become available)
+        candidate_images = preferred_images + candidate_images
+        
+        # Remove duplicates while preserving order
+        seen = set()
+        unique_candidates = []
+        for img in candidate_images:
+            filename = img.split('/')[-1] if '/' in img else img
+            from urllib.parse import unquote
+            filename = unquote(filename)
+            if filename not in seen:
+                seen.add(filename)
+                unique_candidates.append(img)
+        
+        # Filter to only available images
+        for img in unique_candidates:
+            if self.is_available(img):
+                available_images.append(img)
+                if len(available_images) >= 3:
+                    break
+        
+        return available_images[:3]
+
+# Global image registry instance
+image_registry = ImageRegistry()
+
+# Products are now loaded from products_data.py - no more generation functions
 
 # Helper function to generate 2-3 images per product based on category/subcategory
-def get_product_images(category: str, subcategory: str = None, product_name: str = "") -> List[str]:
-    """Generate 2-3 sample images for a product based on its category"""
-    import random
+def extract_image_number(filename: str) -> Optional[int]:
+    """Extract image number (1, 2, or 3) from filename"""
+    filename_lower = filename.lower()
     
-    # Base image URLs - using placeholder services with realistic car parts images
-    # In production, these would be actual product images from your inventory
-    # Using placeholder.com with descriptive text for each category
-    base_images = {
-        "LED Headlights": [
-            "https://via.placeholder.com/800x600/1a1a1a/ffffff?text=LED+Headlights+1",
-            "https://via.placeholder.com/800x600/2a2a2a/ffffff?text=LED+Headlights+2",
-            "https://via.placeholder.com/800x600/3a3a3a/ffffff?text=LED+Headlights+3"
-        ],
-        "Projector Headlights": [
-            "https://via.placeholder.com/800x600/1a1a1a/ffffff?text=Projector+Headlights+1",
-            "https://via.placeholder.com/800x600/2a2a2a/ffffff?text=Projector+Headlights+2",
-            "https://via.placeholder.com/800x600/3a3a3a/ffffff?text=Projector+Headlights+3"
-        ],
-        "Fog Lights": [
-            "https://via.placeholder.com/800x600/1a1a1a/ffffff?text=Fog+Lights+1",
-            "https://via.placeholder.com/800x600/2a2a2a/ffffff?text=Fog+Lights+2"
-        ],
-        "Headlight Lenses": [
-            "https://via.placeholder.com/800x600/1a1a1a/ffffff?text=Headlight+Lenses+1",
-            "https://via.placeholder.com/800x600/2a2a2a/ffffff?text=Headlight+Lenses+2"
-        ],
-        "DRLs": [
-            "https://via.placeholder.com/800x600/1a1a1a/ffffff?text=DRLs+1",
-            "https://via.placeholder.com/800x600/2a2a2a/ffffff?text=DRLs+2"
-        ],
-        "Horns": [
-            "https://via.placeholder.com/800x600/1a1a1a/ffffff?text=Horns+1",
-            "https://via.placeholder.com/800x600/2a2a2a/ffffff?text=Horns+2",
-            "https://via.placeholder.com/800x600/3a3a3a/ffffff?text=Horns+3"
-        ],
-        "Alarms": [
-            "https://via.placeholder.com/800x600/1a1a1a/ffffff?text=Car+Alarms+1",
-            "https://via.placeholder.com/800x600/2a2a2a/ffffff?text=Car+Alarms+2"
-        ],
-        "Turbo Timers": [
-            "https://via.placeholder.com/800x600/1a1a1a/ffffff?text=Turbo+Timer+1",
-            "https://via.placeholder.com/800x600/2a2a2a/ffffff?text=Turbo+Timer+2"
-        ],
-        "Bonnets": [
-            "https://via.placeholder.com/800x600/1a1a1a/ffffff?text=Bonnet+1",
-            "https://via.placeholder.com/800x600/2a2a2a/ffffff?text=Bonnet+2",
-            "https://via.placeholder.com/800x600/3a3a3a/ffffff?text=Bonnet+3"
-        ],
-        "Bumpers": [
-            "https://via.placeholder.com/800x600/1a1a1a/ffffff?text=Bumper+1",
-            "https://via.placeholder.com/800x600/2a2a2a/ffffff?text=Bumper+2",
-            "https://via.placeholder.com/800x600/3a3a3a/ffffff?text=Bumper+3"
-        ],
-        "Bumper Lips": [
-            "https://via.placeholder.com/800x600/1a1a1a/ffffff?text=Bumper+Lip+1",
-            "https://via.placeholder.com/800x600/2a2a2a/ffffff?text=Bumper+Lip+2"
-        ],
-        "Spoilers": [
-            "https://via.placeholder.com/800x600/1a1a1a/ffffff?text=Spoiler+1",
-            "https://via.placeholder.com/800x600/2a2a2a/ffffff?text=Spoiler+2",
-            "https://via.placeholder.com/800x600/3a3a3a/ffffff?text=Spoiler+3"
-        ],
-        "Fender Parts": [
-            "https://via.placeholder.com/800x600/1a1a1a/ffffff?text=Fender+1",
-            "https://via.placeholder.com/800x600/2a2a2a/ffffff?text=Fender+2"
-        ],
-        "Gear Knobs": [
-            "https://via.placeholder.com/800x600/1a1a1a/ffffff?text=Gear+Knob+1",
-            "https://via.placeholder.com/800x600/2a2a2a/ffffff?text=Gear+Knob+2"
-        ],
-        "Wind Breakers": [
-            "https://via.placeholder.com/800x600/1a1a1a/ffffff?text=Wind+Breaker+1",
-            "https://via.placeholder.com/800x600/2a2a2a/ffffff?text=Wind+Breaker+2"
-        ],
-        "Mud Flaps": [
-            "https://via.placeholder.com/800x600/1a1a1a/ffffff?text=Mud+Flaps+1",
-            "https://via.placeholder.com/800x600/2a2a2a/ffffff?text=Mud+Flaps+2"
-        ],
-        "Boot Shocks": [
-            "https://via.placeholder.com/800x600/1a1a1a/ffffff?text=Boot+Shock+1",
-            "https://via.placeholder.com/800x600/2a2a2a/ffffff?text=Boot+Shock+2"
-        ],
-        "Car Mats": [
-            "https://via.placeholder.com/800x600/1a1a1a/ffffff?text=Car+Mats+1",
-            "https://via.placeholder.com/800x600/2a2a2a/ffffff?text=Car+Mats+2",
-            "https://via.placeholder.com/800x600/3a3a3a/ffffff?text=Car+Mats+3"
-        ],
-        "Interior Trims": [
-            "https://via.placeholder.com/800x600/1a1a1a/ffffff?text=Interior+Trim+1",
-            "https://via.placeholder.com/800x600/2a2a2a/ffffff?text=Interior+Trim+2"
-        ],
-        "LED Lights": [
-            "https://via.placeholder.com/800x600/1a1a1a/ffffff?text=LED+Lights+1",
-            "https://via.placeholder.com/800x600/2a2a2a/ffffff?text=LED+Lights+2"
-        ],
-        "Side Mirror": [
-            "https://via.placeholder.com/800x600/1a1a1a/ffffff?text=Side+Mirror+1",
-            "https://via.placeholder.com/800x600/2a2a2a/ffffff?text=Side+Mirror+2"
-        ],
-        "Grille": [
-            "https://via.placeholder.com/800x600/1a1a1a/ffffff?text=Grille+1",
-            "https://via.placeholder.com/800x600/2a2a2a/ffffff?text=Grille+2"
-        ],
-        "Door Handle": [
-            "https://via.placeholder.com/800x600/1a1a1a/ffffff?text=Door+Handle+1",
-            "https://via.placeholder.com/800x600/2a2a2a/ffffff?text=Door+Handle+2"
-        ]
+    # Pattern 1: name1.jpg, name2.jpg, name3.jpg (standalone number)
+    match = re.search(r'(\d+)(?:\s|$|\.|-)', filename_lower)
+    if match:
+        num = int(match.group(1))
+        if num in [1, 2, 3]:
+            return num
+    
+    # Pattern 2: name.jpg (no number = 1), name (2).jpg, name (3).jpg
+    # Check if there's no number pattern at all (base image = 1)
+    has_number = re.search(r'\([0-9]+\)', filename_lower) or re.search(r'\d+', filename_lower.split('.')[0])
+    if not has_number:
+        return 1
+    
+    # Pattern 3: name (2).jpg, name (3).jpg, name (4).jpg, name (5).jpg
+    match = re.search(r'\(([0-9]+)\)', filename_lower)
+    if match:
+        num = int(match.group(1))
+        if num == 2:
+            return 2
+        elif num == 3:
+            return 3
+        elif num == 4:  # Some use (4) as (2)
+            return 2
+        elif num == 5:  # Some use (5) as (3)
+            return 3
+    
+    return None
+
+def extract_base_product_name(product_name: str) -> str:
+    """Extract base product name by removing size/model variants"""
+    # Remove size variants like "- H4", "- H7", "- 9005", etc.
+    base = re.sub(r'\s*-\s*(H\d+|900\d+)\s*$', '', product_name, flags=re.IGNORECASE)
+    # Remove model variants like "- Toyota Harrier", "- Mazda Demio", etc.
+    base = re.sub(r'\s*-\s*(Toyota|Mazda|Honda|Nissan|Ford|Universal|Left|Right|Pair|3 inch|4 inch|5 inch|3x3 inch|4x4 inch|Round|Square|F-Series).*$', '', base, flags=re.IGNORECASE)
+    return base.strip()
+
+def validate_image_quality(image_path: str, min_width: int = 800, min_height: int = 600) -> Dict[str, any]:
+    """Validate image quality and return validation results.
+    
+    Args:
+        image_path: Path to the image file
+        min_width: Minimum required width in pixels (default: 800)
+        min_height: Minimum required height in pixels (default: 600)
+    
+    Returns:
+        Dictionary with validation results:
+        {
+            'valid': bool,
+            'width': int or None,
+            'height': int or None,
+            'format': str or None,
+            'file_size': int or None,
+            'errors': List[str],
+            'warnings': List[str]
+        }
+    """
+    import os
+    from pathlib import Path
+    
+    result = {
+        'valid': True,
+        'width': None,
+        'height': None,
+        'format': None,
+        'file_size': None,
+        'errors': [],
+        'warnings': []
     }
     
-    # Use subcategory if available, otherwise use category
-    key = subcategory if subcategory and subcategory in base_images else category
-    if key not in base_images:
-        # Default images for any category not listed
-        key = "LED Headlights"  # Default fallback
+    try:
+        # Check if file exists
+        if not os.path.exists(image_path):
+            result['valid'] = False
+            result['errors'].append(f"Image file not found: {image_path}")
+            return result
+        
+        # Get file size
+        file_size = os.path.getsize(image_path)
+        result['file_size'] = file_size
+        
+        # Check file size (warn if too large, recommend < 500KB)
+        if file_size > 500 * 1024:  # 500KB
+            result['warnings'].append(f"Image file size ({file_size / 1024:.1f}KB) exceeds recommended 500KB")
+        
+        # Get file extension/format
+        ext = Path(image_path).suffix.lower()
+        result['format'] = ext[1:] if ext else None
+        
+        # Validate format
+        valid_formats = ['jpg', 'jpeg', 'png', 'webp', 'avif']
+        if result['format'] not in valid_formats:
+            result['warnings'].append(f"Image format '{result['format']}' may not be optimal. Recommended: {', '.join(valid_formats)}")
+        
+        # Try to get image dimensions (requires PIL/Pillow)
+        try:
+            from PIL import Image
+            with Image.open(image_path) as img:
+                width, height = img.size
+                result['width'] = width
+                result['height'] = height
+                
+                # Check dimensions
+                if width < min_width or height < min_height:
+                    result['valid'] = False
+                    result['errors'].append(
+                        f"Image dimensions ({width}x{height}) below minimum required ({min_width}x{min_height})"
+                    )
+                elif width < 1200 or height < 900:
+                    result['warnings'].append(
+                        f"Image dimensions ({width}x{height}) below recommended (1200x900) for high quality"
+                    )
+        except ImportError:
+            result['warnings'].append("PIL/Pillow not available, cannot validate image dimensions")
+        except Exception as e:
+            result['warnings'].append(f"Could not read image dimensions: {str(e)}")
     
-    images = base_images.get(key, base_images["LED Headlights"])
-    # Return 2-3 images (randomly select 2 or 3)
-    num_images = random.choice([2, 3])
-    return images[:num_images]
+    except Exception as e:
+        result['valid'] = False
+        result['errors'].append(f"Error validating image: {str(e)}")
+    
+    return result
 
-# Helper function to generate products
+def get_product_images(category: str, subcategory: str = None, product_name: str = "", product_id: int = None) -> List[str]:
+    """Get exactly 3 unique product images from uploaded assets based on product name keywords.
+    Ensures no duplicate images across products and removes duplicates within the product's image set."""
+    import os
+    import re
+    from urllib.parse import quote, unquote
+    
+    # Base URL for product images (served from public folder)
+    base_url = "/product-images"
+    
+    # Extract base product name (remove size/model variants)
+    base_name = extract_base_product_name(product_name) if product_name else ""
+    name_lower = base_name.lower() if base_name else ""
+    subcat_lower = (subcategory or "").lower()
+    cat_lower = category.lower() if category else ""
+    
+    # Comprehensive image filename mappings - each product gets exactly 3 unique images
+    image_mappings = {
+        # LED Headlights
+        "toby": ["download tobby.jpg", "Tobys-T2-Plus-H4-LED-Headlight-HiLo-Beam-150W - Copy (2).webp", "download (100) - Copy.jpg"],
+        "mark x": ["mark x - Copy (2).jpg", "mark x headlights - Copy (2).jpg", "mark x headlights.jpg"],
+        "app led": ["led - Copy.avif", "New-High-Power-P11-Lampada-H7-H4-LED-Headlights-for-Cars-Bulbs-12V-White-6500K-20000lm-H1-H3-H11-H13-9005-9006-Fog-Lights-Carro-Headlight-Bulb - Copy.avif", "led - Copy.avif"],
+        "b-led": ["bled projector 1.jpg", "bled projector (2).jpg", "bled projector (3).jpg"],
+        
+        # Projector Headlights
+        "single led": ["single led - Copy (2).jpg", "sinle led - Copy.jpg", "single led projector.jpg"],
+        "bi-led": ["bi led 1.jpg", "bi led (2).jpg", "bi led (3).jpg"],
+        "tri-led": ["tri led - Copy (2).jpg", "tri led (4).jpg", "tri led (5).jpg"],
+        
+        # Fog Lights
+        "round fog": ["round foglights - Copy (2).jpg", "round foglights (4).jpg", "round foglights (5).jpg"],
+        "square fog": ["square foglights - Copy (2).jpg", "square foglights (4).jpg", "square foglights (5).jpg"],
+        "universal led fog": ["universal led foglights - Copy.jpg", "universal led f - Copy.jpg", "universal led f (2).jpg"],
+        
+        # Headlight Lenses
+        "headlight lens": ["headlight lenses.jpg", "headlight lenses (2).jpg", "headlight lenses (3).jpg"],
+        
+        # DRLs
+        "strip drl": ["strip drl - Copy (2).jpg", "strip drl (4).jpg", "strip drl (5).jpg"],
+        "round drl": ["round drl - Copy (2).jpg", "round drl (4).jpg", "round drl (5).jpg"],
+        "square drl": ["square drl - Copy (2).jpg", "square drl (4).jpg", "square drl (5).jpg"],
+        "universal drl": ["universal drl kit - Copy.jpg", "universal drl kit (2) - Copy.jpg", "universal drl kit (3) - Copy.jpg"],
+        
+        # Horns
+        "horn for toyota": ["horn toyota.jpg", "horn toyota (2).jpg", "horn toyota (3).jpg"],
+        "horn for mazda": ["horn mazda.jpg", "horn mazda (2).jpg", "horn mazda (3).jpg"],
+        "universal electric horn": ["uniersal electic horn - Copy (2).jpg", "universal ele horn - Copy.jpg", "universal electric horn - Copy.jpg"],
+        "air horn": ["air horn kit.jpg", "air horn kit (2).jpg", "air horn kit (3).jpg"],
+        
+        # Alarms
+        "basic car alarm": ["basic car alarm 1.jpg", "basic car alarm 2.jpg", "basic car alarm3.jpg"],
+        "remote car alarm": ["remote car alarm - Copy (2).jpg", "remote car alarm (4).jpg", "remote car alarm (5).jpg"],
+        "gps": ["gps.jpg", "gps (2).jpg", "gps (3).jpg"],
+        "immobilizer": ["immobilizer.jpg", "immobilizer (2).jpg", "immobilizer (3).jpg"],
+        
+        # Turbo Timers
+        "hks turbo": ["hks turbo timer.jpg", "hks turbo.jpg", "hks turbo (2).jpg"],
+        "universal turbo": ["universal turbo - Copy.jpg", "universal turbo (2).jpg", "universal turbo (3).jpg"],
+        
+        # Body Parts - Bonnets
+        "bonnet": ["bonnet1.jpg", "bonnet (2).jpg", "bonnet (3).jpg"],
+        
+        # Bumpers
+        "front bumper": ["front bumper.jpg", "front bumper (2).jpg", "front bumper (3).jpg"],
+        "rear bumper": ["rear bumper - Copy (2).jpg", "rear bumper (3) - Copy.jpg", "rear bumper 1 - Copy.jpg"],
+        "real bumper": ["real bumper 1 - Copy.jpg", "real bumper 2 - Copy.jpg", "real bumper 3 - Copy.jpg"],
+        "bumper lip": ["bumper lip 1 - Copy.jpg", "bumper lip2 - Copy.jpg", "bumper lip 3 - Copy.jpg"],
+        
+        # Spoilers
+        "saloon spoiler": ["saloon spoiler 1 - Copy.jpg", "saloon spoiler 2 - Copy.jpg", "saloon spoiler 3 - Copy.jpg"],
+        "hatchback spoiler": ["hatchback spoiler 1 - Copy.jpg", "hatchback spoiler 2 - Copy.jpg", "hatchback sp[oiler 3 - Copy.jpg"],
+        
+        # Fenders
+        "fender left": ["fender left - Copy.jpg", "fender left 3 - Copy.jpg", "fender left 2 - Copy.jpg"],
+        "fender right": ["fender right - Copy.jpg", "fender right 1 - Copy.jpg", "fender right2 - Copy.jpg"],
+        "fender": ["fender left - Copy.jpg", "fender right - Copy.jpg", "fender right 1 - Copy.jpg"],
+        
+        # Side Mirrors
+        "side mirror left": ["side mirror left - Copy.jpg", "side ,irror left - Copy.jpg", "side mirror 2 - Copy.jpg"],
+        "side mirror right": ["side mirror right2 - Copy.jpg", "side mirror roght1 - Copy.jpg", "side morror right3 - Copy.jpg"],
+        
+        # Grille
+        "grille": ["grille 1 - Copy.jpg", "grille2 - Copy.jpg", "grille3 - Copy.jpg"],
+        
+        # Door Handle
+        "door handle": ["door handle1 - Copy.jpg", "doorhandle2 - Copy.jpg", "doorhandle3 - Copy.jpg"],
+        
+        # Gear Knobs
+        "automatic gear knob": ["Automatic Gear Knob1 - Copy.jpg", "Automatic Gear Knob2 - Copy.jpg", "Automatic Gear Knob3 - Copy.jpg"],
+        "manual gear knob": ["Manual Gear Knob1 - Copy.jpg", "Manual Gear Knob2 - Copy.jpg", "Manual Gear Knob3 - Copy.jpg"],
+        "sport gear knob": ["Sport Gear Knob1 - Copy.jpg", "Sport Gear Knob2 - Copy.jpg", "Sport Gear Knob3 - Copy.jpg"],
+        "leather gear knob": ["Leather Gear Knob1 - Copy.jpg", "Leather Gear Knob2 - Copy.jpg", "Leather Gear Knob3 - Copy.jpg"],
+        
+        # Wind Breakers
+        "wind breaker": ["Wind Breaker - Toyota Harrier, Toyota Mark X, Toyota Vitz, Mazda Demio, Honda Fit, Nissan Note3 - Copy - Copy (3).jpg", "Wind Breaker - Toyota Harrier, Toyota Mark X, Toyota Vitz, Mazda Demio, Honda Fit, Nissan Note3 - Copy (5) - Copy.jpg", "Wind Breaker - Toyota Harrier, Toyota Mark X, Toyota Vitz, Mazda Demio, Honda Fit, Nissan Note3 - Copy (6).jpg"],
+        
+        # Mud Flaps
+        "front mud flaps": ["Front Mud Flaps1 - Copy.jpg", "Front Mud Flaps2 - Copy.jpg", "Front Mud Flaps3 - Copy.jpg"],
+        "rear mud flaps": ["Rear Mud Flaps1 - Copy.jpg", "Rear Mud Flaps2 - Copy.jpg", "Rear Mud Flaps3 - Copy.jpg"],
+        "full set mud flaps": ["Full Set Mud Flaps1 - Copy.jpg", "Full Set Mud Flaps2 - Copy.jpg", "Full Set Mud Flaps3 - Copy.jpg"],
+        
+        # Boot Shocks
+        "boot left shock": ["boot shock left1 - Copy.jpg", "bootshock left2 - Copy.jpg", "bootshock left 3 - Copy.jpg"],
+        "boot right shock": ["boot shock r1ght1 - Copy.jpg", "bootright shock2 - Copy.jpg", "bootright shock 3 - Copy.jpg"],
+        "boot pair shock": ["boot shock left1 - Copy.jpg", "boot shock r1ght1 - Copy.jpg", "bootshock left2 - Copy.jpg"],
+        
+        # Car Mats
+        "standard car mats": ["Standard Car Mats1 - Copy.jpg", "Standard Car Mats2 - Copy.jpg", "Standard Car Mats3 - Copy.jpg"],
+        "premium car mats": ["Premium Car Mats1 - Copy.jpg", "Premium Car Mats2 - Copy.jpg", "Premium Car Mats3 - Copy.jpg"],
+        "rubber car mats": ["Rubber Car Mats1 - Copy.jpg", "Rubber Car Mats2 - Copy.jpg", "Rubber Car Mats3 - Copy.jpg"],
+        "custom fit car mats": ["Custom Fit Car Mats1 - Copy.jpg", "Custom Fit Car Mats2 - Copy.jpg", "Custom Fit Car Mats3 - Copy.jpg"],
+        
+        # Interior Trims
+        "dashboard trim": ["Dashboard Trim1 - Copy.jpg", "Dashboard Trim2 - Copy.jpg", "Dashboard Trim3 - Copy.jpg"],
+        "door trim": ["Door Trim1 - Copy.jpg", "Door Trim2 - Copy.jpg", "Door Trim3 - Copy.jpg"],
+        "center console trim": ["Center Console Trim1 - Copy.jpg", "Center Console Trim2 - Copy.jpg", "Center Console Trim3 - Copy.jpg"],
+        "steering wheel trim": ["Steering Wheel Trim1 - Copy.jpg", "Steering Wheel Trim2 - Copy (2).jpg", "Steering Wheel Trim3 - Copy (2).jpg"],
+        
+        # LED Lights
+        "led tail": ["led tail lights.jpg", "led tail lights - Copy.jpg", "led tail - Copy (2).jpg"],
+        "led brake": ["led brake.jpg", "led brake (2) - Copy.jpg", "led brake lights.jpg"],
+        "led turn": ["led turn signals - Copy (2).jpg", "led turn signals (4) - Copy.jpg", "led turn signals (5) - Copy.jpg"],
+        "led interior": ["led interior.jpg", "led interior lights - Copy - Copy.jpg", "led interior lights.jpg"],
+        "led license": ["led license plate.jpg", "led license plate (2).jpg", "led locense plate.jpg"],
+    }
+    
+    # Try to find matching images based on product name keywords
+    matched_images = []
+    name_lower_clean = re.sub(r'[^\w\s]', '', name_lower)
+    
+    # Improved matching: prioritize exact product name matches
+    # Match by product name keywords (most specific first)
+    for key, images in image_mappings.items():
+        # Check for exact match or key contained in product name
+        if key in name_lower_clean or key in name_lower or name_lower in key:
+            matched_images = images.copy()  # Make a copy to avoid modifying original
+            break
+    
+    # If no exact match, try category/subcategory matching
+    if not matched_images:
+        cat_key = f"{subcat_lower}" if subcat_lower else f"{cat_lower}"
+        for key, images in image_mappings.items():
+            if key in cat_key or cat_key in key:
+                matched_images = images.copy()
+                break
+    
+    # If still no match, try partial keyword matching
+    if not matched_images:
+        for key, images in image_mappings.items():
+            # Check if any word from key is in product name
+            key_words = key.split()
+            name_words = name_lower_clean.split()
+            if any(kw in name_words for kw in key_words if len(kw) > 2):
+                matched_images = images.copy()
+                break
+    
+    # Remove duplicates within matched_images (ensure unique within product)
+    seen_filenames = set()
+    unique_matched = []
+    for img in matched_images:
+        filename = img.split('/')[-1] if '/' in img else img
+        filename = unquote(filename) if '%' in filename else filename
+        if filename not in seen_filenames:
+            seen_filenames.add(filename)
+            unique_matched.append(img)
+    matched_images = unique_matched
+    
+    # Filter out images that are already used by other products
+    available_images = []
+    for img in matched_images:
+        if image_registry.is_available(img):
+            available_images.append(img)
+            if len(available_images) >= 3:
+                break
+    
+    # If we don't have 3 available images, find alternatives
+    if len(available_images) < 3:
+        alternatives = image_registry.get_unique_alternatives(
+            matched_images, category, subcategory, image_mappings
+        )
+        # Add alternatives that aren't already in available_images
+        seen = {img.split('/')[-1] if '/' in img else img for img in available_images}
+        for alt in alternatives:
+            alt_filename = alt.split('/')[-1] if '/' in alt else alt
+            alt_filename = unquote(alt_filename) if '%' in alt_filename else alt_filename
+            if alt_filename not in seen and image_registry.is_available(alt):
+                available_images.append(alt)
+                seen.add(alt_filename)
+                if len(available_images) >= 3:
+                    break
+    
+    # Ensure we have exactly 3 images
+    if len(available_images) < 3:
+        # Fallback: use category-based images or default
+        fallback_images = []
+        if "led" in cat_lower or "led" in subcat_lower:
+            fallback_images = ["led - Copy.avif"]
+        elif "bumper" in cat_lower or "bumper" in subcat_lower:
+            fallback_images = ["front bumper.jpg", "front bumper (2).jpg", "front bumper (3).jpg"]
+        else:
+            fallback_images = ["download (100) - Copy.jpg"]
+        
+        # Add fallback images that are available
+        seen = {img.split('/')[-1] if '/' in img else img for img in available_images}
+        for fb_img in fallback_images:
+            fb_filename = fb_img.split('/')[-1] if '/' in fb_img else fb_img
+            if fb_filename not in seen and image_registry.is_available(fb_img):
+                available_images.append(fb_img)
+                seen.add(fb_filename)
+                if len(available_images) >= 3:
+                    break
+        
+        # If still not enough, pad with available images (last resort)
+        while len(available_images) < 3 and available_images:
+            available_images.append(available_images[-1])
+    
+    # Sort images by number (1, 2, 3) if possible for consistency
+    try:
+        sorted_images = sorted(available_images[:3], key=lambda x: extract_image_number(x.split('/')[-1] if '/' in x else x) or 0)
+        available_images = sorted_images[:3]
+    except:
+        available_images = available_images[:3]
+    
+    # Register images with the registry if product_id is provided
+    if product_id is not None:
+        image_registry.register_images(product_id, available_images)
+    
+    # Return exactly 3 images with proper URLs
+    return [f"{base_url}/{quote(img)}" for img in available_images[:3]]
+
+# Load products from data file
 def initialize_products():
     global products
     product_id = 1
@@ -226,7 +486,7 @@ def initialize_products():
                     "price_varies": headlight.get("price_varies", False),
                     "description": create_product_description(f"{headlight['name']} - {size}", "Lighting & Electrical", "LED Headlights", size, model),
                     "stock": 15 if headlight.get("price_varies") else 25,
-                    "images": get_product_images("Lighting & Electrical", "LED Headlights", f"{headlight['name']} - {size}"),
+                    "images": get_product_images("Lighting & Electrical", "LED Headlights", f"{headlight['name']} - {size}", product_id),
                     "sku": f"LED-{size}-{product_id:03d}",
                     "size": size,
                     "compatible_cars": [model] if model != "Universal" else ["All Models"],
@@ -268,7 +528,7 @@ def initialize_products():
                 "price_varies": False,
                 "description": create_product_description(f"{proj['name']} - {size}", "Lighting & Electrical", "Projector Headlights", size, None),
                 "stock": 20,
-                "images": get_product_images("Lighting & Electrical", "Projector Headlights"),
+                "images": get_product_images("Lighting & Electrical", "Projector Headlights", f"{proj['name']} - {size}", product_id),
                 "sku": f"PROJ-{size}-{product_id:03d}",
                 "size": size,
                 "compatible_cars": ["All Models"],
@@ -299,7 +559,7 @@ def initialize_products():
                 "price_varies": False,
                 "description": create_product_description(f"{fog_type} LED Fog Light", "Lighting & Electrical", "Fog Lights", None, None),
                 "stock": 18,
-                    "images": get_product_images("Lighting & Electrical", "Fog Lights"),
+                    "images": get_product_images("Lighting & Electrical", "Fog Lights", f"{fog['name']} - {fog_type}", product_id),
                 "sku": f"FOG-{product_id:03d}",
                 "size": fog_type,
                 "compatible_cars": ["All Models"],
@@ -323,7 +583,7 @@ def initialize_products():
             "price_varies": True,
             "description": create_product_description(f"Headlight Lens Cover - {car_model}", "Lighting & Electrical", "Headlight Lenses", None, car_model),
             "stock": 12,
-            "images": get_product_images("Lighting & Electrical", "Headlight Lenses"),
+            "images": get_product_images("Lighting & Electrical", "Headlight Lenses", f"Headlight Lenses - {car_model}", product_id),
             "sku": f"LENS-{product_id:03d}",
             "size": None,
             "compatible_cars": [car_model],
@@ -348,7 +608,7 @@ def initialize_products():
             "price_varies": False,
             "description": create_product_description(drl, "Lighting & Electrical", "DRLs", None, None),
             "stock": 22,
-            "images": get_product_images("Lighting & Electrical", "DRLs"),
+            "images": get_product_images("Lighting & Electrical", "DRLs", drl, product_id),
             "sku": f"DRL-{product_id:03d}",
             "size": None,
             "compatible_cars": ["All Models"],
@@ -380,7 +640,7 @@ def initialize_products():
             "price_varies": horn["price_varies"],
             "description": create_product_description(f"{horn['car']} Premium Horn Set", "Lighting & Electrical", "Horns", None, horn['car']),
             "stock": 15,
-            "images": get_product_images("Lighting & Electrical", "Horns"),
+            "images": get_product_images("Lighting & Electrical", "Horns", horn["name"], product_id),
             "sku": f"HORN-{product_id:03d}",
             "size": None,
             "compatible_cars": [horn["car"]] if horn["car"] != "Universal" else ["All Models"],
@@ -405,7 +665,7 @@ def initialize_products():
             "price_varies": False,
             "description": create_product_description(alarm, "Lighting & Electrical", "Alarms", None, None),
             "stock": 10,
-            "images": get_product_images("Lighting & Electrical", "Alarms"),
+            "images": get_product_images("Lighting & Electrical", "Alarms", alarm, product_id),
             "sku": f"ALM-{product_id:03d}",
             "size": None,
             "compatible_cars": ["All Models"],
@@ -445,7 +705,7 @@ def initialize_products():
             "price_varies": False,
             "description": create_product_description(timer["name"], "Lighting & Electrical", "Turbo Timers", None, None),
             "stock": 8,
-            "images": get_product_images("Lighting & Electrical", "Turbo Timers"),
+            "images": get_product_images("Lighting & Electrical", "Turbo Timers", timer["name"], product_id),
             "sku": f"TT-{product_id:03d}",
             "size": None,
             "compatible_cars": ["All Models"],
@@ -470,7 +730,7 @@ def initialize_products():
             "price_varies": True,
             "description": create_product_description(f"Bonnet - {model}", "Body Parts", "Bonnets", None, model),
             "stock": 5,
-            "images": get_product_images("Body Parts", "Bonnets"),
+            "images": get_product_images("Body Parts", "Bonnets", f"Bonnet - {model}", product_id),
             "sku": f"BNT-{product_id:03d}",
             "size": None,
             "compatible_cars": [model],
@@ -501,7 +761,7 @@ def initialize_products():
                 "price_varies": True,
                 "description": create_product_description(f"{bumper['type']} - {model}", "Body Parts", f"{bumper['type']} Bumpers", None, model),
                 "stock": 4,
-                "images": get_product_images("Body Parts", "Bumpers"),
+                "images": get_product_images("Body Parts", "Bumpers", f"{bumper['type']} - {model}", product_id),
                 "sku": f"BMP-{product_id:03d}",
                 "size": None,
                 "compatible_cars": [model],
@@ -525,7 +785,7 @@ def initialize_products():
             "price_varies": False,
             "description": create_product_description(f"Bumper Lip - {model}", "Body Parts", "Bumper Lips", None, model),
             "stock": 12,
-            "images": get_product_images("Body Parts", "Bumper Lips"),
+            "images": get_product_images("Body Parts", "Bumper Lips", f"Bumper Lip - {model}", product_id),
             "sku": f"BLIP-{product_id:03d}",
             "size": None,
             "compatible_cars": [model],
@@ -555,7 +815,7 @@ def initialize_products():
                 "price_varies": False,
                 "description": create_product_description(f"{spoiler['type']} - {model}", "Body Parts", "Spoilers", None, model),
                 "stock": 8,
-                "images": get_product_images("Body Parts", "Spoilers"),
+                "images": get_product_images("Body Parts", "Spoilers", f"{spoiler['type']} - {model}", product_id),
                 "sku": f"SPL-{product_id:03d}",
                 "size": None,
                 "compatible_cars": [model],
@@ -580,7 +840,7 @@ def initialize_products():
                 "price_varies": True,
                 "description": create_product_description(f"{side.capitalize()} Fender - {model}", "Body Parts", "Fender Parts", None, model),
                 "stock": 6,
-                "images": get_product_images("Body Parts", "Fender Parts"),
+                "images": get_product_images("Body Parts", "Fender Parts", f"Fender - {side} - {model}", product_id),
                 "sku": f"FND-{product_id:03d}",
                 "size": None,
                 "compatible_cars": [model],
@@ -611,7 +871,7 @@ def initialize_products():
             "price_varies": False,
             "description": create_product_description(f"{knob['type']} Gear Knob", "Accessories", "Gear Knobs", None, None),
             "stock": 20,
-            "images": get_product_images("Accessories", "Gear Knobs"),
+            "images": get_product_images("Accessories", "Gear Knobs", knob["type"], product_id),
             "sku": f"GK-{product_id:03d}",
             "size": None,
             "compatible_cars": ["All Models"],
@@ -635,7 +895,7 @@ def initialize_products():
             "price_varies": True,
             "description": create_product_description(f"Wind Breakers - {model}", "Accessories", "Wind Breakers", None, model),
             "stock": 10,
-            "images": get_product_images("Accessories", "Wind Breakers"),
+            "images": get_product_images("Accessories", "Wind Breakers", f"Wind Breaker - {model}", product_id),
             "sku": f"WB-{product_id:03d}",
             "size": None,
             "compatible_cars": [model],
@@ -660,7 +920,7 @@ def initialize_products():
             "price_varies": False,
             "description": create_product_description(f"Universal Mud Flaps - {flap_type}", "Accessories", "Mud Flaps", None, None),
             "stock": 25,
-            "images": get_product_images("Accessories", "Mud Flaps"),
+            "images": get_product_images("Accessories", "Mud Flaps", flap_type, product_id),
             "sku": f"MF-{product_id:03d}",
             "size": None,
             "compatible_cars": ["All Models"],
@@ -685,7 +945,7 @@ def initialize_products():
                 "price_varies": True,
                 "description": create_product_description(f"Boot Struts - {model}", "Accessories", "Boot Shocks", None, model),
                 "stock": 15,
-                "images": get_product_images("Accessories", "Boot Shocks"),
+                "images": get_product_images("Accessories", "Boot Shocks", f"Boot {side} Shock - {model}", product_id),
                 "sku": f"BS-{product_id:03d}",
                 "size": None,
                 "compatible_cars": [model],
@@ -716,7 +976,7 @@ def initialize_products():
             "price_varies": mat.get("price_varies", False),
             "description": create_product_description(f"{mat['type']} Car Mats", "Accessories", "Car Mats", None, None),
             "stock": 30,
-            "images": get_product_images("Accessories", "Car Mats"),
+            "images": get_product_images("Accessories", "Car Mats", mat["type"], product_id),
             "sku": f"MAT-{product_id:03d}",
             "size": None,
             "compatible_cars": ["All Models"] if not mat.get("price_varies") else ["Model Specific"],
@@ -741,7 +1001,7 @@ def initialize_products():
             "price_varies": True,
             "description": create_product_description(f"{trim} Interior Trim", "Accessories", "Interior Trims", None, None),
             "stock": 12,
-            "images": get_product_images("Accessories", "Interior Trims"),
+            "images": get_product_images("Accessories", "Interior Trims", trim, product_id),
             "sku": f"TRIM-{product_id:03d}",
             "size": None,
             "compatible_cars": ["Model Specific"],
@@ -774,7 +1034,7 @@ def initialize_products():
             "price_varies": False,
             "description": create_product_description(light['name'], "Performance & Styling", "LED Projectors", None, None),
             "stock": 20,
-            "images": get_product_images("Lighting & Electrical", "LED Lights"),
+            "images": get_product_images("Lighting & Electrical", "LED Lights", light["name"], product_id),
             "sku": f"LED-LT-{product_id:03d}",
             "size": None,
             "compatible_cars": ["All Models"],
@@ -806,7 +1066,7 @@ def initialize_products():
                 "price_varies": True,
                 "description": create_product_description(f"{part['name']} - {model}", "Body Parts", part["name"].split(" - ")[0], None, model),
                 "stock": 8,
-                "images": get_product_images("Body Parts", part["name"].split(" - ")[0]),
+                "images": get_product_images("Body Parts", part["name"].split(" - ")[0], f"{part['name']} - {model}", product_id),
                 "sku": f"BP-{product_id:03d}",
                 "size": None,
                 "compatible_cars": [model],
@@ -947,7 +1207,7 @@ def create_product():
         'price_varies': data.get('price_varies', False),
         'description': data['description'],
         'stock': int(data['stock']),
-        'images': data.get('images', get_product_images(data.get('category', ''), data.get('subcategory'))),
+        'images': data.get('images', get_product_images(data.get('category', ''), data.get('subcategory'), data.get('name', ''), new_id)),
         'sku': data.get('sku', f'PROD-{new_id:03d}'),
         'size': data.get('size'),
         'compatible_cars': data.get('compatible_cars', []),

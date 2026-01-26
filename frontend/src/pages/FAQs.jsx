@@ -10,7 +10,7 @@ const FAQs = () => {
     'Orders & Payments': [
       {
         question: "How do I place an order?",
-        answer: "You can place an order by calling us at 0719 101 851 or 0994 382 764, via WhatsApp, or by visiting our store at MSP Plaza, 1st Floor, Room No. 14, Nairobi. For online inquiries, use our contact form."
+        answer: "You can place an order by calling us at 0719 101 851 or 0794 382 764, via WhatsApp, or by visiting our store at MSP Plaza, 1st Floor, Room No. 14, Nairobi. For online inquiries, use our contact form."
       },
       {
         question: "What payment methods do you accept?",
@@ -54,7 +54,7 @@ const FAQs = () => {
       },
       {
         question: "Can I pick up my order from your shop?",
-        answer: "Absolutely! You're welcome to pick up your order from our store at MSP Plaza, 1st Floor, Room No. 14, Nairobi. We're open Monday to Saturday, 8:00 AM to 6:00 PM."
+        answer: "Absolutely! You're welcome to pick up your order from our store at MSP Plaza, 1st Floor, Room No. 14, Nairobi. We're open Monday to Friday, 8:00 AM to 7:00 PM, and Saturday, 8:00 AM to 5:00 PM."
       }
     ],
     'Returns & Warranty': [

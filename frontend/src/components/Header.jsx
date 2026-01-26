@@ -1,15 +1,26 @@
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 
 const Header = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
   const location = useLocation();
+  const navigate = useNavigate();
 
   const isActive = (path) => {
     if (path === '/shop') {
       return location.pathname === '/shop' || location.pathname === '/';
     }
     return location.pathname === path;
+  };
+
+  const handleSearchSubmit = (e) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      navigate(`/shop?search=${encodeURIComponent(searchQuery.trim())}`);
+    } else {
+      navigate('/shop');
+    }
   };
 
   return (
@@ -25,11 +36,11 @@ const Header = () => {
                 </svg>
                 <span>0719 101 851</span>
               </a>
-              <a href="tel:+254994382764" className="flex items-center space-x-1 hover:text-orange-400 transition-colors">
+              <a href="tel:+254794382764" className="flex items-center space-x-1 hover:text-orange-400 transition-colors">
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
                 </svg>
-                <span>0994 382 764</span>
+                <span>0794 382 764</span>
               </a>
             </div>
             <div className="flex items-center space-x-2">
@@ -48,28 +59,36 @@ const Header = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
             {/* Logo */}
-            <Link to="/shop" className="flex items-center space-x-3">
-              <div className="w-12 h-12 bg-[#FF6B35] rounded flex items-center justify-center">
-                <span className="text-white text-2xl font-bold">M</span>
-              </div>
-              <div>
-                <div className="text-xl font-bold text-gray-900">Mariech</div>
-                <div className="text-sm text-gray-600">AUTOSPARE</div>
-              </div>
+            <Link to="/shop" className="flex items-center">
+              <img 
+                src="/logo.png" 
+                alt="Mariech Autospare Logo" 
+                className="h-12 w-auto object-contain"
+              />
             </Link>
 
             {/* Search Bar */}
             <div className="flex-1 max-w-2xl mx-8 hidden md:block">
-              <div className="relative">
+              <form onSubmit={handleSearchSubmit} className="relative">
                 <input
                   type="text"
                   placeholder="Search by part name, car model, size..."
-                  className="w-full px-4 py-2 pl-10 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-[#FF6B35] focus:border-[#FF6B35]"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full px-4 py-2 pl-10 pr-10 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-[#FF6B35] focus:border-[#FF6B35]"
                 />
                 <svg className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                 </svg>
-              </div>
+                <button
+                  type="submit"
+                  className="absolute right-2 top-2 p-1 text-gray-400 hover:text-[#FF6B35] transition-colors"
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                  </svg>
+                </button>
+              </form>
             </div>
 
             {/* Right Side - Cart and Buttons */}
