@@ -21,10 +21,12 @@ function App() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/shop" element={<Products />} />
+          <Route path="/products" element={<Products />} />
           <Route path="/products/:id" element={<ProductDetail />} />
           <Route path="/about" element={<About />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/wholesale" element={<WholesaleOrders />} />
+          <Route path="/wholesale-orders" element={<WholesaleOrders />} />
           <Route path="/faqs" element={<FAQs />} />
         </Routes>
       </Layout>

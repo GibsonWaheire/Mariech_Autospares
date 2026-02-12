@@ -9,7 +9,10 @@ const Header = () => {
 
   const isActive = (path) => {
     if (path === '/shop') {
-      return location.pathname === '/shop' || location.pathname === '/';
+      return location.pathname === '/shop' || location.pathname === '/products' || location.pathname === '/';
+    }
+    if (path === '/wholesale') {
+      return location.pathname === '/wholesale' || location.pathname === '/wholesale-orders';
     }
     return location.pathname === path;
   };
