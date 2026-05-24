@@ -34,9 +34,9 @@ const IMAGE_PATH_MAPPING = {
   '/product-images/bled projector (3).jpg': '/product-images/B-LED Projector F-Series 3 - Copy.jpg',
   
   // Bonnet
-  '/product-images/bonnet1.jpg': '/product-images/Bonnet - Toyota Harrier, Toyota Mark X, Toyota Vitz, Mazda Demio, Honda Fit, Nissan Note1 - Copy.jpg',
-  '/product-images/bonnet (2).jpg': '/product-images/Bonnet - Toyota Harrier, Toyota Mark X, Toyota Vitz, Mazda Demio, Honda Fit, Nissan Note2 - Copy.jpg',
-  '/product-images/bonnet (3).jpg': '/product-images/Bonnet - Toyota Harrier, Toyota Mark X, Toyota Vitz, Mazda Demio, Honda Fit, Nissan Note3 - Copy.jpg',
+  '/product-images/bonnet1.jpg': '/product-images/bonnet-new-1.jpg',
+  '/product-images/bonnet (2).jpg': '/product-images/front-bumper-new-1.jpg',
+  '/product-images/bonnet (3).jpg': '/product-images/bonnet-new-1.jpg',
   
   // Boot Shock
   '/product-images/boot shock left1 - Copy.jpg': '/product-images/Boot Left Shock - Toyota Harrier, Toyota Mark X, Toyota Vitz, Mazda Demio, Honda Fit, Nissan Note, Toyota Camry, Honda Accord 1 - Copy.jpg',
@@ -47,19 +47,19 @@ const IMAGE_PATH_MAPPING = {
   '/product-images/bootright shock 3 - Copy.jpg': '/product-images/Boot Right Shock - Toyota Harrier, Toyota Mark X, Toyota Vitz, Mazda Demio, Honda Fit, Nissan Note, Toyota Camry, Honda Accord 3 - Copy.jpg',
   
   // Bumper Lip
-  '/product-images/bumper lip 1 - Copy.jpg': '/product-images/Bumper Lip - Toyota Harrier, Toyota Mark X, Toyota Vitz, Mazda Demio, Honda Fit, Nissan Note1 - Copy.jpg',
-  '/product-images/bumper lip2 - Copy.jpg': '/product-images/BumpeLip - Toyota Harrier, Toyota Mark X, Toyota Vitz, Mazda Demio, Honda Fit, Nissan Note2 - Copy.jpg',
-  '/product-images/bumper lip 3 - Copy.jpg': '/product-images/Bumpe Lip - Toyota Harrier, Toyota Mark X, Toyota Vitz, Mazda Demio, Honda Fit, Nissan Note3 - Copy.jpg',
+  '/product-images/bumper lip 1 - Copy.jpg': '/product-images/bumper-lip-new-1.jpg',
+  '/product-images/bumper lip2 - Copy.jpg': '/product-images/bumper-lip-new-2.jpg',
+  '/product-images/bumper lip 3 - Copy.jpg': '/product-images/bumper-lip-new-1.jpg',
   
   // Front Bumper
-  '/product-images/front bumper.jpg': '/product-images/Front Bumper - Toyota Harrier, Toyota Mark X, Toyota Vitz, Mazda Demio1 - Copy.jpg',
-  '/product-images/front bumper (2).jpg': '/product-images/Front Bumper - Toyota Harrier, Toyota Mark X, Toyota Vitz, Mazda Demio2 - Copy.jpg',
-  '/product-images/front bumper (3).jpg': '/product-images/Front Bumper - Toyota Harrier, Toyota Mark X, Toyota Vitz, Mazda Demio3 - Copy.jpg',
-  
-  // Real Bumper
-  '/product-images/real bumper 1 - Copy.jpg': '/product-images/Real Bumper - Toyota Harrier, Toyota Mark X, Toyota Vitz1 - Copy.jpg',
-  '/product-images/real bumper 2 - Copy.jpg': '/product-images/Real Bumper - Toyota Harrier, Toyota Mark X, Toyota Vitz2 - Copy.jpg',
-  '/product-images/real bumper 3 - Copy.jpg': '/product-images/Real Bumper - Toyota Harrier, Toyota Mark X, Toyota Vitz3 - Copy.jpg',
+  '/product-images/front bumper.jpg': '/product-images/front-bumper-new-1.jpg',
+  '/product-images/front bumper (2).jpg': '/product-images/front-bumper-new-2.jpg',
+  '/product-images/front bumper (3).jpg': '/product-images/front-bumper-new-1.jpg',
+
+  // Real Bumper (Rear)
+  '/product-images/real bumper 1 - Copy.jpg': '/product-images/rear-bumper-new-1.jpg',
+  '/product-images/real bumper 2 - Copy.jpg': '/product-images/rear-bumper-new-1.jpg',
+  '/product-images/real bumper 3 - Copy.jpg': '/product-images/rear-bumper-new-1.jpg',
   
   // Horn for Toyota
   '/product-images/horn toyota.jpg': '/product-images/Horn for Toyota Harrier 1 - Copy.jpg',
@@ -157,24 +157,24 @@ const IMAGE_PATH_MAPPING = {
   '/product-images/doorhandle3 - Copy.jpg': '/product-images/Door Handle - Toyota Harrier, Toyota Mark X, Toyota Vitz 3 - Copy.jpg',
   
   // Fender Left
-  '/product-images/fender left - Copy.jpg': '/product-images/Fender - Left - Toyota Harrier, Toyota Mark X, Toyota Vitz, Mazda Demio 1 - Copy.jpg',
-  '/product-images/fender left 3 - Copy.jpg': '/product-images/Fender - Left - Toyota Harrier, Toyota Mark X, Toyota Vitz, Mazda Demio 3 - Copy.jpg',
-  '/product-images/fender left 2 - Copy.jpg': '/product-images/Fender - Left - Toyota Harrier, Toyota Mark X, Toyota Vitz, Mazda Demio 2 - Copy.jpg',
-  
+  '/product-images/fender left - Copy.jpg': '/product-images/fender-new-1.jpg',
+  '/product-images/fender left 3 - Copy.jpg': '/product-images/fender-new-1.jpg',
+  '/product-images/fender left 2 - Copy.jpg': '/product-images/fender-new-1.jpg',
+
   // Fender Right
-  '/product-images/fender right - Copy.jpg': '/product-images/Fender - Right - Toyota Harrier, Toyota Mark X, Toyota Vitz, Mazda Demio 1 - Copy.jpg',
-  '/product-images/fender right 1 - Copy.jpg': '/product-images/Fender - Right - Toyota Harrier, Toyota Mark X, Toyota Vitz, Mazda Demio 2 - Copy.jpg',
-  '/product-images/fender right2 - Copy.jpg': '/product-images/Fender - Right - Toyota Harrier, Toyota Mark X, Toyota Vitz, Mazda Demio 3 - Copy.jpg',
+  '/product-images/fender right - Copy.jpg': '/product-images/fender-new-1.jpg',
+  '/product-images/fender right 1 - Copy.jpg': '/product-images/fender-new-1.jpg',
+  '/product-images/fender right2 - Copy.jpg': '/product-images/fender-new-1.jpg',
   
   // Grille
-  '/product-images/grille 1 - Copy.jpg': '/product-images/Grille - Toyota Harrier, Toyota Mark X, Mazda Demio 1 - Copy.jpg',
-  '/product-images/grille2 - Copy.jpg': '/product-images/Grille - Toyota Harrier, Toyota Mark X, Mazda Demio 2 - Copy.jpg',
-  '/product-images/grille3 - Copy.jpg': '/product-images/Grille - Toyota Harrier, Toyota Mark X, Mazda Demio 3 - Copy.jpg',
+  '/product-images/grille 1 - Copy.jpg': '/product-images/grille-harrier-new-1.jpg',
+  '/product-images/grille2 - Copy.jpg': '/product-images/grille-harrier-new-2.jpg',
+  '/product-images/grille3 - Copy.jpg': '/product-images/grille-harrier-new-1.jpg',
   
   // Rear Bumper
-  '/product-images/rear bumper - Copy (2).jpg': '/product-images/Rear Bumper - Toyota Harrier, Toyota Mark X, Toyota Vitz, Mazda Demio1 - Copy.jpg',
-  '/product-images/rear bumper (3) - Copy.jpg': '/product-images/Rear Bumper - Toyota Harrier, Toyota Mark X, Toyota Vitz, Mazda Demio2 - Copy.jpg',
-  '/product-images/rear bumper 1 - Copy.jpg': '/product-images/Rear Bumper - Toyota Harrier, Toyota Mark X, Toyota Vitz, Mazda Demio3 - Copy.jpg',
+  '/product-images/rear bumper - Copy (2).jpg': '/product-images/rear-bumper-new-1.jpg',
+  '/product-images/rear bumper (3) - Copy.jpg': '/product-images/rear-bumper-new-1.jpg',
+  '/product-images/rear bumper 1 - Copy.jpg': '/product-images/rear-bumper-new-1.jpg',
   
   // Immobilizer
   '/product-images/immobilizer.jpg': '/product-images/Immobilizer 1 - Copy.jpg',
@@ -272,19 +272,19 @@ const IMAGE_PATH_MAPPING = {
   '/product-images/led locense plate.jpg': '/product-images/LED License Plate Lights3 - Copy.jpg',
   
   // Mark X LED Headlights
-  '/product-images/mark x - Copy (2).jpg': '/product-images/Mark X LED Headlights 1 - Copy.jpg',
+  '/product-images/mark x - Copy (2).jpg': '/product-images/bonnet-new-1.jpg',
   '/product-images/mark x headlights - Copy (2).jpg': '/product-images/Mark X LED Headlights 2 - Copy.jpg',
   '/product-images/mark x headlights.jpg': '/product-images/Mark X LED Headlights 3 - Copy.jpg',
   
   // Saloon Spoiler
-  '/product-images/saloon spoiler 1 - Copy.jpg': '/product-images/Saloon Spoiler - Toyota Mark X, Toyota Camry, Honda Accord1 - Copy.jpg',
-  '/product-images/saloon spoiler 2 - Copy.jpg': '/product-images/Saloon Spoiler - Toyota Mark X, Toyota Camry, Honda Accord2 - Copy.jpg',
-  '/product-images/saloon spoiler 3 - Copy.jpg': '/product-images/Saloon Spoiler - Toyota Mark X, Toyota Camry, Honda Accord3 - Copy.jpg',
-  
+  '/product-images/saloon spoiler 1 - Copy.jpg': '/product-images/spoiler-wing-new-1.jpg',
+  '/product-images/saloon spoiler 2 - Copy.jpg': '/product-images/spoiler-wing-new-1.jpg',
+  '/product-images/saloon spoiler 3 - Copy.jpg': '/product-images/spoiler-wing-new-1.jpg',
+
   // Hatchback Spoiler
-  '/product-images/hatchback spoiler 1 - Copy.jpg': '/product-images/Hatchback Spoiler - Toyota Vitz, Mazda Demio, Honda Fit, Nissan Note 1 - Copy.jpg',
-  '/product-images/hatchback spoiler 2 - Copy.jpg': '/product-images/Hatchback Spoiler - Toyota Vitz, Mazda Demio, Honda Fit, Nissan Note 2 - Copy.jpg',
-  '/product-images/hatchback sp[oiler 3 - Copy.jpg': '/product-images/Hatchback Spoiler - Toyota Vitz, Mazda Demio, Honda Fit, Nissan Note 3 - Copy.jpg',
+  '/product-images/hatchback spoiler 1 - Copy.jpg': '/product-images/spoiler-wing-new-1.jpg',
+  '/product-images/hatchback spoiler 2 - Copy.jpg': '/product-images/spoiler-wing-new-1.jpg',
+  '/product-images/hatchback sp[oiler 3 - Copy.jpg': '/product-images/spoiler-wing-new-1.jpg',
   
   // Side Mirror Left
   '/product-images/side mirror left - Copy.jpg': '/product-images/Side Mirror - Left - Toyota Harrier, Toyota Mark X, Toyota Vitz 1 - Copy.jpg',
