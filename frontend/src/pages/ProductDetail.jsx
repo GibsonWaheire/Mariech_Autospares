@@ -279,16 +279,16 @@ const ProductDetail = () => {
 
               <div className="space-y-4">
                 <div className="flex space-x-4">
-                  <button
-                    className={`flex-1 px-6 py-3 rounded-lg font-semibold transition-colors ${
+                  <a
+                    href={product.stock > 0 ? `mailto:g.waheir00@gmail.com?subject=${encodeURIComponent(`Order: ${product.name}`)}&body=${encodeURIComponent(`Hello,\n\nI would like to place an order for the following product:\n\nProduct: ${product.name}\nSKU: ${product.sku || 'N/A'}\nPrice: KES ${product.price || 'Contact for price'}\nCategory: ${product.category}${product.size ? `\nSize: ${product.size}` : ''}${product.car_make ? `\nCar Make: ${product.car_make}` : ''}${product.car_model ? `\nCar Model: ${product.car_model}` : ''}\n\nPlease confirm availability and payment details.\n\nThank you.`)}` : undefined}
+                    className={`flex-1 px-6 py-3 rounded-lg font-semibold transition-colors text-center ${
                       product.stock > 0
-                        ? 'bg-[#FF6B35] text-white hover:bg-[#e55a2b]'
-                        : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                        ? 'bg-[#FF6B35] text-white hover:bg-[#e55a2b] cursor-pointer'
+                        : 'bg-gray-300 text-gray-500 cursor-not-allowed pointer-events-none'
                     }`}
-                    disabled={product.stock === 0}
                   >
-                    {product.stock > 0 ? 'Add to Cart' : 'Out of Stock'}
-                  </button>
+                    {product.stock > 0 ? 'Order Now' : 'Out of Stock'}
+                  </a>
                   <Link
                     to="/contact"
                     className="px-6 py-3 border-2 border-[#FF6B35] text-[#FF6B35] rounded-lg font-semibold hover:bg-orange-50 transition-colors text-center"
