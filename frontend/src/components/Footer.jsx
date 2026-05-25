@@ -11,7 +11,7 @@ const Footer = () => {
               <img 
                 src="/logo.png" 
                 alt="Mariech Autospare Logo" 
-                className="h-10 w-auto object-contain"
+                className="h-14 w-auto object-contain"
               />
             </div>
             <p className="text-gray-400 text-sm mb-4">

@@ -66,7 +66,7 @@ const Header = () => {
               <img 
                 src="/logo.png" 
                 alt="Mariech Autospare Logo" 
-                className="h-12 w-auto object-contain"
+                className="h-16 w-auto object-contain"
               />
             </Link>
 
