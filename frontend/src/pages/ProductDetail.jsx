@@ -280,7 +280,9 @@ const ProductDetail = () => {
               <div className="space-y-4">
                 <div className="flex space-x-4">
                   <a
-                    href={product.stock > 0 ? `mailto:g.waheir00@gmail.com?subject=${encodeURIComponent(`Order: ${product.name}`)}&body=${encodeURIComponent(`Hello,\n\nI would like to place an order for the following product:\n\nProduct: ${product.name}\nSKU: ${product.sku || 'N/A'}\nPrice: KES ${product.price || 'Contact for price'}\nCategory: ${product.category}${product.size ? `\nSize: ${product.size}` : ''}${product.car_make ? `\nCar Make: ${product.car_make}` : ''}${product.car_model ? `\nCar Model: ${product.car_model}` : ''}\n\nPlease confirm availability and payment details.\n\nThank you.`)}` : undefined}
+                    href={product.stock > 0 ? `https://wa.me/254719101851?text=${encodeURIComponent(`Hello, I would like to order:\n\nProduct: ${product.name}\nSKU: ${product.sku || 'N/A'}\nPrice: KES ${product.price || 'Contact for price'}\nCategory: ${product.category}${product.size ? `\nSize: ${product.size}` : ''}${product.car_make ? `\nCar Make: ${product.car_make}` : ''}${product.car_model ? `\nCar Model: ${product.car_model}` : ''}\n\nPlease confirm availability and payment details.`)}` : undefined}
+                    target="_blank"
+                    rel="noopener noreferrer"
                     className={`flex-1 px-6 py-3 rounded-lg font-semibold transition-colors text-center ${
                       product.stock > 0
                         ? 'bg-[#FF6B35] text-white hover:bg-[#e55a2b] cursor-pointer'
