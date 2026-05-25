@@ -55,6 +55,15 @@ const Footer = () => {
               <li>
                 <Link to="/faqs" className="hover:text-white transition-colors">FAQs</Link>
               </li>
+              <li>
+                <Link to="/terms" className="hover:text-white transition-colors">Terms &amp; Conditions</Link>
+              </li>
+              <li>
+                <Link to="/privacy" className="hover:text-white transition-colors">Privacy Policy</Link>
+              </li>
+              <li>
+                <Link to="/returns" className="hover:text-white transition-colors">Return Policy</Link>
+              </li>
             </ul>
           </div>
 
@@ -111,14 +120,21 @@ const Footer = () => {
         </div>
 
         {/* Bottom Bar */}
-        <div className="mt-8 pt-8 border-t border-gray-700 flex flex-col md:flex-row justify-between items-center">
-          <p className="text-gray-400 text-sm">
-            © 2025 Mariech Autospare. All rights reserved.
-          </p>
-          <div className="flex space-x-6 mt-4 md:mt-0">
-            <a href="#" className="text-gray-400 hover:text-white text-sm transition-colors">Privacy Policy</a>
-            <a href="#" className="text-gray-400 hover:text-white text-sm transition-colors">Terms & Conditions</a>
+        <div className="mt-8 pt-8 border-t border-gray-700">
+          <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+            <p className="text-gray-400 text-sm">
+              © 2025 Mariech Autospare. All rights reserved.
+            </p>
+            <div className="flex flex-wrap justify-center gap-4">
+              <Link to="/privacy" className="text-gray-400 hover:text-white text-sm transition-colors">Privacy Policy</Link>
+              <Link to="/terms" className="text-gray-400 hover:text-white text-sm transition-colors">Terms &amp; Conditions</Link>
+              <Link to="/returns" className="text-gray-400 hover:text-white text-sm transition-colors">Return Policy</Link>
+            </div>
           </div>
+          <p className="text-center text-gray-600 text-xs mt-4">
+            Website designed &amp; developed by{' '}
+            <a href="tel:+254726899113" className="hover:text-gray-400 transition-colors">0726 899 113</a>
+          </p>
         </div>
       </div>
     </footer>
