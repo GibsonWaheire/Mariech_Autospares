@@ -9,9 +9,36 @@ const FeaturedProducts = ({ limit = 12 }) => {
   const [isAutoPlaying, setIsAutoPlaying] = useState(true);
 
   useEffect(() => {
-    // Get bestseller products
-    const featured = filterProducts({ bestseller: true, sort: 'popularity' });
-    setProducts(featured.slice(0, limit));
+    const all = filterProducts({ sort: 'popularity' });
+
+    // Pick one product per category first, deduped by primary image
+    const seenCategories = new Set();
+    const seenImages = new Set();
+    const picked = [];
+
+    // First pass: one per category
+    for (const p of all) {
+      const img = p.images && p.images[0];
+      if (!seenCategories.has(p.category) && img && !seenImages.has(img)) {
+        seenCategories.add(p.category);
+        seenImages.add(img);
+        picked.push(p);
+      }
+    }
+
+    // Second pass: fill remaining slots with bestsellers not already picked
+    if (picked.length < limit) {
+      for (const p of all) {
+        if (picked.length >= limit) break;
+        const img = p.images && p.images[0];
+        if (img && !seenImages.has(img)) {
+          seenImages.add(img);
+          picked.push(p);
+        }
+      }
+    }
+
+    setProducts(picked.slice(0, limit));
   }, [limit]);
 
   // Auto-play carousel
