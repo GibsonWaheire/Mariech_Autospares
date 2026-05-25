@@ -1,5 +1,6 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Layout from './components/Layout';
+import ScrollToTop from './components/ScrollToTop';
 import Home from './pages/Home';
 import Products from './pages/Products';
 import ProductDetail from './pages/ProductDetail';
@@ -17,6 +18,7 @@ function App() {
         v7_relativeSplatPath: true,
       }}
     >
+      <ScrollToTop />
       <Layout>
         <Routes>
           <Route path="/" element={<Home />} />
