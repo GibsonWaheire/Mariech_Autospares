@@ -68,7 +68,22 @@ const Products = () => {
       delete filterParams.max_price;
     }
     
-    const filtered = filterProducts(filterParams);
+    let filtered = filterProducts(filterParams);
+
+    // When no category/subcategory filter is active, deduplicate by primary image
+    // so we don't show 7 variants of the same product with the same photo
+    const isFiltered = filters.category || filters.subcategory || filters.car_make || filters.car_model || filters.size || searchQuery;
+    if (!isFiltered) {
+      const seenImages = new Set();
+      filtered = filtered.filter(p => {
+        const img = p.images && p.images[0] ? p.images[0] : null;
+        if (!img) return true;
+        if (seenImages.has(img)) return false;
+        seenImages.add(img);
+        return true;
+      });
+    }
+
     setProducts(filtered);
   }, [filters, searchQuery]);
 
