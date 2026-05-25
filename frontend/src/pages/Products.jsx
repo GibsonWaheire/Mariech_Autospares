@@ -30,6 +30,7 @@ const Products = () => {
     carMake: true,
     priceRange: true
   });
+  const [showMobileFilters, setShowMobileFilters] = useState(false);
 
   // Update search query when URL params change
   useEffect(() => {
@@ -126,7 +127,7 @@ const Products = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         <div className="flex flex-col lg:flex-row gap-6">
           {/* Left Sidebar - Filters */}
-          <aside className="lg:w-64 flex-shrink-0">
+          <aside className={`lg:w-64 flex-shrink-0 ${showMobileFilters ? 'block' : 'hidden'} lg:block`}>
             <div className="bg-white rounded-lg shadow-sm border border-gray-200">
               {/* Category Section */}
               <div className="border-b border-gray-200">
@@ -296,13 +297,24 @@ const Products = () => {
           <main className="flex-1">
             {/* Search Bar */}
             <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 mb-6">
-              <form 
+              <form
                 onSubmit={(e) => {
                   e.preventDefault();
                   setSearchParams({ search: searchQuery });
                 }}
                 className="flex gap-2"
               >
+                {/* Mobile filter toggle button - inside search row */}
+                <button
+                  type="button"
+                  onClick={() => setShowMobileFilters(prev => !prev)}
+                  className="lg:hidden flex items-center gap-1 px-3 py-2 border-2 border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 font-medium text-sm flex-shrink-0"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2a1 1 0 01-.293.707L13 13.414V19a1 1 0 01-.553.894l-4 2A1 1 0 017 21v-7.586L3.293 6.707A1 1 0 013 6V4z" />
+                  </svg>
+                  {showMobileFilters ? 'Hide' : 'Filter'}
+                </button>
                 <div className="flex-1 relative">
                   <input
                     type="text"

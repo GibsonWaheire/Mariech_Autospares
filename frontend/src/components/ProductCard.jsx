@@ -61,7 +61,7 @@ const ProductCard = ({ product }) => {
       className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden hover:shadow-lg transition-all duration-300 flex flex-col h-full group"
     >
       {/* Image Section with Badges */}
-      <div className="relative bg-gray-100 h-64 flex items-center justify-center overflow-hidden">
+      <div className="relative bg-white h-44 sm:h-56 flex items-center justify-center overflow-hidden">
         {productImage ? (
           <img
             src={productImage}
